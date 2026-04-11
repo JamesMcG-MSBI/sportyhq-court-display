@@ -19,6 +19,15 @@ jobs:
         with:
           submodules: true
           lfs: false
+
+      # Substitute API key placeholders from GitHub repository secrets.
+      # Add SPORTYHQ_API_KEY and SPORTYHQ_CLUB_KEY in:
+      #   GitHub → Settings → Secrets and variables → Actions
+      - name: Inject API secrets
+        run: |
+          sed -i 's/__SPORTYHQ_API_KEY__/${{ secrets.SPORTYHQ_API_KEY }}/g' js/noticeboard.js
+          sed -i 's/__SPORTYHQ_CLUB_KEY__/${{ secrets.SPORTYHQ_CLUB_KEY }}/g' js/noticeboard.js
+
       - name: Build And Deploy
         id: builddeploy
         uses: Azure/static-web-apps-deploy@v1
