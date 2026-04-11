@@ -5,10 +5,11 @@
 
 // ════════════════════════════════════════════════════════════
 //  API CONFIG
-//  ── Replace these with your club's real credentials ──────
+//  ── Values are injected at deploy time from GitHub secrets ──
+//  ── Do NOT replace these placeholders manually ───────────
 // ════════════════════════════════════════════════════════════
-const API_KEY  = '50c4fcdc3cc38d95fe3f703ba6dfc51d';
-const CLUB_KEY = 'b778915424224d0d5ae09cd6e31a96d8';
+const API_KEY  = '__SPORTYHQ_API_KEY__';
+const CLUB_KEY = '__SPORTYHQ_CLUB_KEY__';
 const API_BASE = 'https://www.sportyhq.com/api/book/daily_bookings';
 
 // How often to re-fetch from the API (milliseconds)
