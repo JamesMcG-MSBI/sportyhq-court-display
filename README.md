@@ -1,6 +1,6 @@
 # Pirates TC — Court Availability Board
 
-A live court booking display board for Pirates Tennis Club. Designed to run fullscreen on a notice board monitor at the club.
+A live court booking display board for Pirates Tennis Club. Designed to run fullscreen on a notice board monitor at the club. 
 
 ## What it does
 
