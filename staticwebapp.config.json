@@ -1,0 +1,35 @@
+{
+  "routes": [
+    {
+      "route": "/*",
+      "serve": "/index.html",
+      "statusCode": 200
+    }
+  ],
+  "responseOverrides": {
+    "404": {
+      "rewrite": "/index.html",
+      "statusCode": 200
+    }
+  },
+  "globalHeaders": {
+    "Access-Control-Allow-Origin": "*"
+  },
+  "mimeTypes": {
+    ".json": "application/json"
+  },
+  "headers": [
+    {
+      "route": "/*.js",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    },
+    {
+      "route": "/*.css",
+      "headers": {
+        "Cache-Control": "no-cache"
+      }
+    }
+  ]
+}

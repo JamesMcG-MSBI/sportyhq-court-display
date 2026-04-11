@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Court Bookings · Pirates TC</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/noticeboard.css">
+</head>
+<body>
+
+<!-- LOADING -->
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text">Loading bookings…</div>
+</div>
+
+<!-- HEADER -->
+<header>
+  <div>
+    <div class="club-name">Pirates Tennis Club</div>
+    <div class="club-sub">Court Availability Board</div>
+  </div>
+  <div class="header-right">
+    <div class="live-badge"><span class="pulse-dot"></span>Live</div>
+    <div class="current-time" id="clock">--:--</div>
+    <div class="current-date" id="dateline">—</div>
+  </div>
+</header>
+
+<!-- WINDOW BAR -->
+<div class="window-bar">
+  <span class="window-label">Showing</span>
+  <span class="window-range" id="windowRange">—</span>
+  <div class="fetch-status" id="fetchStatus">—</div>
+</div>
+
+<!-- TIME RULER -->
+<div class="ruler-row">
+  <div class="ruler-slots" id="rulerSlots"></div>
+  <div class="ruler-summary-col">What's next</div>
+</div>
+
+<!-- COURTS -->
+<div class="courts-list" id="courtsList"></div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <span class="legend-label">Key</span>
+  <div class="legend-item"><div class="l-pip l-member"></div>Member booking</div>
+  <div class="legend-item"><div class="l-pip l-lesson"></div>Coaching</div>
+  <div class="legend-item"><div class="l-pip l-club"></div>Club activity</div>
+  <div class="legend-item"><div class="l-pip l-maint"></div>Maintenance</div>
+  <div class="legend-spacer"></div>
+  <div class="legend-tag">Pirates Tennis Club · Court Display</div>
+</div>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-track" id="tickerTrack"></div>
+</div>
+
+<script src="/js/noticeboard.js"></script>
+</body>
+</html>
