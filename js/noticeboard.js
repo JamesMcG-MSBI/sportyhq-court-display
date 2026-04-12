@@ -84,6 +84,7 @@ async function fetchBookings() {
       start: b.start_time.slice(0, 5),          // "HH:MM:SS" → "HH:MM"
       name:  b.owner_name || 'Block Booking',   // owner_name can be false
       type:  classifyBooking(b),
+      durationMins: parseInt(b.length, 10) || SLOT_MINS,
     })).filter(b => b.court !== null);
 
     lastFetchTime = new Date();
@@ -166,7 +167,7 @@ function floorSlot(m) {
 function mergeBlocks(courtId, allBlocks) {
   const blocks = allBlocks
     .filter(b => b.court === courtId)
-    .map(b => ({ name: b.name, type: b.type, startMins: hhmm2mins(b.start) }))
+    .map(b => ({ name: b.name, type: b.type, startMins: hhmm2mins(b.start), durationMins: b.durationMins || SLOT_MINS }))
     .sort((a, b) => a.startMins - b.startMins);
 
   const merged = [];
@@ -180,7 +181,7 @@ function mergeBlocks(courtId, allBlocks) {
     ) {
       last.endMins += SLOT_MINS;
     } else {
-      merged.push({ ...blk, endMins: blk.startMins + SLOT_MINS });
+      merged.push({ ...blk, endMins: blk.startMins + blk.durationMins });
     }
   }
   return merged;

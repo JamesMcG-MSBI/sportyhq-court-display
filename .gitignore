@@ -17,3 +17,7 @@ oryx-manifest.toml
 
 # Azure Functions local dev settings (contains secrets)
 api/local.settings.json
+
+# Demo API Response cache (contains secrets)
+api/demoresponse.json
+
