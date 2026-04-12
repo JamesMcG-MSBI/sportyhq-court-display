@@ -15,6 +15,12 @@ const UPSTREAM_BASE = 'https://www.sportyhq.com/api/book/daily_bookings';
 const DATE_PATTERN  = /^\d{4}-\d{2}-\d{2}$/;
 
 module.exports = async function (context, req) {
+  // ── TEMPORARY PING: remove once confirmed working ──────────
+  if (req.query.ping) {
+    context.res = { status: 200, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ ok: true }) };
+    return;
+  }
+
   context.log('Bookings function invoked. Query params:', JSON.stringify(req.query));
 
   const apiKey  = process.env.SPORTYHQ_API_KEY;
