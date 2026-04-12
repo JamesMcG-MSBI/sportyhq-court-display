@@ -15,8 +15,12 @@ const UPSTREAM_BASE = 'https://www.sportyhq.com/api/book/daily_bookings';
 const DATE_PATTERN  = /^\d{4}-\d{2}-\d{2}$/;
 
 module.exports = async function (context, req) {
+  context.log('Bookings function invoked. Query params:', JSON.stringify(req.query));
+
   const apiKey  = process.env.SPORTYHQ_API_KEY;
   const clubKey = process.env.SPORTYHQ_CLUB_KEY;
+
+  context.log(`Env check — API_KEY present: ${!!apiKey}, CLUB_KEY present: ${!!clubKey}`);
 
   if (!apiKey || !clubKey) {
     context.log.error('SPORTYHQ_API_KEY or SPORTYHQ_CLUB_KEY is not set in Application Settings.');
@@ -29,8 +33,10 @@ module.exports = async function (context, req) {
   }
 
   const date = req.query.date;
+  context.log('Date param received:', date);
 
   if (!date || !DATE_PATTERN.test(date)) {
+    context.log.warn('Invalid or missing date param:', date);
     context.res = {
       status: 400,
       headers: { 'Content-Type': 'application/json' },
@@ -44,8 +50,13 @@ module.exports = async function (context, req) {
     `&club_key=${encodeURIComponent(clubKey)}` +
     `&date=${encodeURIComponent(date)}`;
 
+  // Log the URL with credentials redacted
+  context.log('Calling upstream:', `${UPSTREAM_BASE}?X-API-KEY=[REDACTED]&club_key=[REDACTED]&date=${encodeURIComponent(date)}`);
+
   try {
-    const data = await httpsGetJson(upstreamUrl);
+    const { statusCode, body: data } = await httpsGetJson(upstreamUrl);
+    context.log(`Upstream responded with HTTP ${statusCode}`);
+    context.log('Upstream response body (first 500 chars):', JSON.stringify(data).slice(0, 500));
     context.res = {
       status: 200,
       headers: { 'Content-Type': 'application/json' },
@@ -56,22 +67,23 @@ module.exports = async function (context, req) {
     context.res = {
       status: 502,
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ error: 'Failed to fetch upstream booking data.' }),
+      body: JSON.stringify({ error: 'Failed to fetch upstream booking data.', detail: err.message }),
     };
   }
 };
 
-// Wrapper around https.get that resolves with parsed JSON.
+// Wrapper around https.get that resolves with { statusCode, body }.
 function httpsGetJson(url) {
   return new Promise((resolve, reject) => {
     https.get(url, (res) => {
       const chunks = [];
       res.on('data', chunk => chunks.push(chunk));
       res.on('end', () => {
+        const raw = Buffer.concat(chunks).toString('utf8');
         try {
-          resolve(JSON.parse(Buffer.concat(chunks).toString('utf8')));
+          resolve({ statusCode: res.statusCode, body: JSON.parse(raw) });
         } catch {
-          reject(new Error('Upstream response was not valid JSON'));
+          reject(new Error(`Upstream response was not valid JSON (HTTP ${res.statusCode}). Body starts: ${raw.slice(0, 200)}`));
         }
       });
       res.on('error', reject);
