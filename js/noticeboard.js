@@ -116,20 +116,12 @@ function setFetchStatus(state, text) {
 // ════════════════════════════════════════════════════════════
 
 function getTodayDateString() {
-  // ── DEMO ONLY ── hardcoded to match demo API data.
-  // For production, remove this line and uncomment the block below.
-  return '2024-05-28'; // ← REMOVE FOR PRODUCTION
-
-  // const d = new Date();
-  // return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
 function getNowMins() {
-  // ── DEMO ONLY ── pinned to 09:42 to show morning bookings.
-  // For production, remove this line and uncomment the line below.
-  return 9 * 60 + 42; // ← REMOVE FOR PRODUCTION
-
-  // const n = new Date(); return n.getHours() * 60 + n.getMinutes();
+  const n = new Date(); return n.getHours() * 60 + n.getMinutes();
 }
 
 function hhmm2mins(s) {
@@ -244,11 +236,8 @@ function render() {
   const nowFrac     = (nowMins - windowStart) / (WINDOW_SLOTS * SLOT_MINS);
 
   // ── Clock
-  // ── DEMO ONLY: fixed values. For production replace both lines:
-  //    document.getElementById('clock').textContent = formatTime(new Date());
-  //    const d = new Date();
-  document.getElementById('clock').textContent = '09:42'; // ← CHANGE FOR PRODUCTION
-  const d = new Date('2024-05-28');                        // ← CHANGE FOR PRODUCTION
+  document.getElementById('clock').textContent = formatTime(new Date());
+  const d = new Date();
 
   const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
