@@ -1,9 +1,0 @@
-{
-  "name": "sportyhq-proxy",
-  "version": "1.0.0",
-  "description": "Azure Function proxy for the SportyHQ API",
-  "main": "index.js",
-  "engines": {
-    "node": ">=18"
-  }
-}
