@@ -20,13 +20,27 @@ jobs:
           submodules: true
           lfs: false
 
-      # Substitute API key placeholders from GitHub repository secrets.
-      # Add SPORTYHQ_API_KEY and SPORTYHQ_CLUB_KEY in:
-      #   GitHub → Settings → Secrets and variables → Actions
-      - name: Inject API secrets
+      # Deploy API credentials as Azure Static Web App application settings.
+      # These become environment variables available to the Azure Function proxy.
+      # Requires the following GitHub repository secrets:
+      #   AZURE_CREDENTIALS       — JSON output of: az ad sp create-for-rbac --sdk-auth
+      #   AZURE_RESOURCE_GROUP    — Resource group containing the Static Web App
+      #   AZURE_SWA_NAME          — Name of the Static Web App resource
+      #   SPORTYHQ_API_KEY        — SportyHQ API key
+      #   SPORTYHQ_CLUB_KEY       — SportyHQ club key
+      - name: Azure login
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Set Azure Function application settings
         run: |
-          sed -i 's/__SPORTYHQ_API_KEY__/${{ secrets.SPORTYHQ_API_KEY }}/g' js/noticeboard.js
-          sed -i 's/__SPORTYHQ_CLUB_KEY__/${{ secrets.SPORTYHQ_CLUB_KEY }}/g' js/noticeboard.js
+          az staticwebapp appsettings set \
+            --name "${{ secrets.AZURE_SWA_NAME }}" \
+            --resource-group "${{ secrets.AZURE_RESOURCE_GROUP }}" \
+            --setting-names \
+              SPORTYHQ_API_KEY="${{ secrets.SPORTYHQ_API_KEY }}" \
+              SPORTYHQ_CLUB_KEY="${{ secrets.SPORTYHQ_CLUB_KEY }}"
 
       - name: Build And Deploy
         id: builddeploy
@@ -38,7 +52,7 @@ jobs:
           ###### Repository/Build Configurations - These values can be configured to match your app requirements. ######
           # For more information regarding Static Web App workflow configurations, please visit: https://aka.ms/swaworkflowconfig
           app_location: "/" # App source code path
-          api_location: "" # Api source code path - optional
+          api_location: "api" # Azure Function proxy
           output_location: "." # Built app content directory - optional
           ###### End of Repository/Build Configurations ######
 

@@ -5,12 +5,10 @@
 
 // ════════════════════════════════════════════════════════════
 //  API CONFIG
-//  ── Values are injected at deploy time from GitHub secrets ──
-//  ── Do NOT replace these placeholders manually ───────────
+//  ── Requests go to the Azure Function proxy at /api/bookings
+//  ── The proxy holds the SportyHQ credentials server-side ─
 // ════════════════════════════════════════════════════════════
-const API_KEY  = '__SPORTYHQ_API_KEY__';
-const CLUB_KEY = '__SPORTYHQ_CLUB_KEY__';
-const API_BASE = 'https://www.sportyhq.com/api/book/daily_bookings';
+const API_BASE = '/api/bookings';
 
 // How often to re-fetch from the API (milliseconds)
 const REFRESH_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
@@ -67,7 +65,7 @@ async function fetchBookings() {
   setFetchStatus('loading', 'Refreshing…');
 
   const today = getTodayDateString();
-  const url   = `${API_BASE}?X-API-KEY=${API_KEY}&club_key=${CLUB_KEY}&date=${today}`;
+  const url   = `${API_BASE}?date=${today}`;
 
   try {
     const res  = await fetch(url);
