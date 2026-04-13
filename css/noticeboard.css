@@ -511,3 +511,153 @@ header {
 
 .ticker-dim { color: var(--muted); }
 .ticker-sep { color: var(--green-mid); }
+
+/* ════════════════════════════════════════════════════════════
+   LAYOUT MODE SWITCHING
+   JS sets body.is-portrait or body.is-landscape on load and
+   on every resize. Default (before JS) shows landscape.
+   ════════════════════════════════════════════════════════════ */
+.portrait-only  { display: none; }
+
+body.is-portrait  .landscape-only { display: none !important; }
+body.is-portrait  .portrait-only  { display: flex; }
+body.is-landscape .portrait-only  { display: none !important; }
+
+/* ════════════════════════════════════════════════════════════
+   PORTRAIT — 3×2 courts grid
+   ════════════════════════════════════════════════════════════ */
+.courts-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 8px;
+  padding: 8px;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ── Court card ── */
+.court-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-top-width: 4px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  animation: slideIn .35s ease both;
+  min-height: 0;
+}
+
+.court-card.type-members  { border-top-color: var(--c-members);  }
+.court-card.type-genflood { border-top-color: var(--c-genflood); }
+.court-card.type-general  { border-top-color: var(--c-general);  }
+
+/* Reduce header density for portrait */
+.court-card .court-header       { padding: 4px 8px; gap: 6px; }
+.court-card .court-num          { font-size: 1rem; }
+.court-card .court-type-badge   { font-size: 0.5rem; padding: 1px 6px; letter-spacing: 0.12em; }
+.court-card .floodlit-icon      { font-size: 0.48rem; gap: 3px; }
+.court-card .floodlit-icon svg  { width: 9px; height: 9px; }
+
+/* ── Slots stack (vertical) ── */
+.slots-stack {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-height: 0;
+  overflow: visible; /* booking blocks span across row boundaries */
+}
+
+.slot-row {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  border-top: 1px solid var(--border);
+  position: relative;
+  min-height: 0;
+}
+.slot-row:first-child { border-top: none; }
+.slot-row.hour-start  { border-top: 1px solid var(--border-strong); }
+
+.slot-time-label {
+  flex-shrink: 0;
+  width: 30px;
+  font-size: 0.48rem;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  padding: 0 4px;
+  text-align: right;
+  line-height: 1;
+}
+.slot-row.hour-start .slot-time-label {
+  color: var(--text-mid);
+  font-weight: 600;
+  font-size: 0.52rem;
+}
+
+.slot-fill {
+  flex: 1;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+.slot-fill.free-cell::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  border: 1.5px solid var(--muted2);
+}
+
+/* Portrait booking-block overrides */
+.court-card .booking-block {
+  top: 3px;
+  bottom: auto; /* height set by JS */
+  left: 3px;
+  right: 3px;
+  border-radius: 5px;
+  padding: 2px 4px;
+}
+.court-card .bb-name { font-size: 0.54rem; }
+.court-card .bb-time { font-size: 0.44rem; }
+
+/* ── Horizontal now-line (portrait) ── */
+.now-line-h {
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  background: var(--green-vivid);
+  box-shadow: 0 0 5px rgba(34,164,71,0.4);
+  z-index: 10;
+  pointer-events: none;
+}
+.now-line-h::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 7px; height: 7px;
+  background: var(--green-vivid);
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px rgba(34,164,71,0.18);
+}
+
+/* ── Summary panel (portrait) ── */
+.summary-panel-p {
+  flex-shrink: 0;
+  border-top: 1.5px solid var(--border);
+  padding: 5px 8px;
+  background: var(--surface2);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.summary-panel-p .summary-status { font-size: 0.48rem; letter-spacing:.14em; text-transform:uppercase; font-weight:700; }
+.summary-panel-p .summary-main   { font-size: 0.62rem; font-weight:600; color:var(--text); line-height:1.25; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.summary-panel-p .summary-sub    { font-size: 0.52rem; color:var(--text-mid); line-height:1.3; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }

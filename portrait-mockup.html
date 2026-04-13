@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Court Bookings · Pirates TC · Portrait Mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════════════════════════════
+   Pirates TC — Court Availability Board  ·  Portrait Layout
+   Standalone mockup — reads from demoresponse.json
+   ════════════════════════════════════════════════════════════ */
+
+:root {
+  --bg:          #f0f2ee;
+  --surface:     #ffffff;
+  --surface2:    #f7f8f6;
+  --border:      #dde0da;
+  --border-strong: #c8ccc4;
+
+  --green:       #1a7a35;
+  --green-light: #e8f5ec;
+  --green-mid:   #b2d9bc;
+  --green-vivid: #22a447;
+
+  --amber:       #b06a00;
+  --amber-light: #fff4e0;
+  --amber-mid:   #f5c97a;
+
+  --blue:        #1a5fa8;
+  --blue-light:  #e8f1fb;
+  --blue-mid:    #9fc3ef;
+
+  --red:         #c0392b;
+  --red-light:   #fdecea;
+
+  --c-members:  #1a7a35;
+  --c-genflood: #1a5fa8;
+  --c-general:  #7a5a1a;
+
+  --text:        #1c2419;
+  --text-mid:    #4a5c46;
+  --muted:       #8a9e86;
+  --muted2:      #c4d0c0;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── HEADER ── */
+header {
+  background: var(--surface);
+  border-bottom: 1.5px solid var(--border);
+  padding: 10px 16px 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+}
+
+.club-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.6rem;
+  letter-spacing: 0.12em;
+  color: var(--green);
+  line-height: 1;
+}
+
+.club-sub {
+  font-size: 0.55rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+.header-right { text-align: right; }
+
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--green-light);
+  border: 1px solid var(--green-mid);
+  border-radius: 20px;
+  padding: 3px 8px;
+  font-size: 0.55rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 3px;
+}
+
+.pulse-dot {
+  width: 5px; height: 5px;
+  background: var(--green-vivid);
+  border-radius: 50%;
+  animation: pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:.4; transform:scale(.7); }
+}
+
+.current-time {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.9rem;
+  letter-spacing: 0.06em;
+  color: var(--text);
+  line-height: 1;
+}
+
+.current-date {
+  font-size: 0.55rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 1px;
+}
+
+/* ── WINDOW BAR ── */
+.window-bar {
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  padding: 4px 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.window-label {
+  font-size: 0.55rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.window-range {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 0.95rem;
+  letter-spacing: 0.1em;
+  color: var(--text);
+}
+
+.fetch-status {
+  margin-left: auto;
+  font-size: 0.54rem;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+}
+.fetch-status.error   { color: var(--red);   }
+.fetch-status.loading { color: var(--amber);  }
+
+/* ── 3×2 COURTS GRID ── */
+.courts-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 8px;
+  padding: 8px;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ── COURT CARD ── */
+.court-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-top-width: 4px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  animation: slideIn .35s ease both;
+  min-height: 0;
+}
+
+.court-card.type-members  { border-top-color: var(--c-members);  }
+.court-card.type-genflood { border-top-color: var(--c-genflood); }
+.court-card.type-general  { border-top-color: var(--c-general);  }
+
+@keyframes slideIn {
+  from { opacity:0; transform:translateY(6px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.court-card:nth-child(1) { animation-delay: .04s; }
+.court-card:nth-child(2) { animation-delay: .08s; }
+.court-card:nth-child(3) { animation-delay: .12s; }
+.court-card:nth-child(4) { animation-delay: .16s; }
+.court-card:nth-child(5) { animation-delay: .20s; }
+.court-card:nth-child(6) { animation-delay: .24s; }
+
+/* ── COURT HEADER ── */
+.court-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.court-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1rem;
+  letter-spacing: .06em;
+  line-height: 1;
+}
+.type-members  .court-num { color: var(--c-members);  }
+.type-genflood .court-num { color: var(--c-genflood); }
+.type-general  .court-num { color: var(--c-general);  }
+
+.court-divider { width:1px; height:12px; background:var(--border-strong); flex-shrink:0; }
+
+.court-type-badge {
+  font-size: 0.5rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  padding: 1px 6px;
+  border-radius: 20px;
+}
+.type-members  .court-type-badge { background:var(--green-light); color:var(--c-members);  border:1px solid var(--green-mid); }
+.type-genflood .court-type-badge { background:var(--blue-light);  color:var(--c-genflood); border:1px solid var(--blue-mid);  }
+.type-general  .court-type-badge { background:var(--amber-light); color:var(--c-general);  border:1px solid var(--amber-mid); }
+
+.floodlit-icon {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 0.48rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.floodlit-icon svg { width:9px; height:9px; opacity:0.5; }
+
+/* ── SLOTS STACK (vertical) ── */
+.slots-stack {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  min-height: 0;
+  overflow: visible; /* allows booking blocks to span across rows */
+}
+
+/* Each slot row */
+.slot-row {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  border-top: 1px solid var(--border);
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.slot-row:first-child { border-top: none; }
+.slot-row.hour-start  { border-top: 1px solid var(--border-strong); }
+
+/* Time label on the left of each slot row */
+.slot-time-label {
+  flex-shrink: 0;
+  width: 30px;
+  font-size: 0.48rem;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  padding: 0 4px;
+  text-align: right;
+  line-height: 1;
+}
+.slot-row.hour-start .slot-time-label {
+  color: var(--text-mid);
+  font-weight: 600;
+  font-size: 0.52rem;
+}
+
+/* The coloured fill area */
+.slot-fill {
+  flex: 1;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.slot-fill.free-cell   { background: transparent; }
+.slot-fill.occ-member  { background: #f0faf2; }
+.slot-fill.occ-lesson  { background: #fffbf0; }
+.slot-fill.occ-club    { background: #f0f5fd; }
+.slot-fill.occ-maint   { background: #fdf2f0; }
+
+/* Free dot */
+.slot-fill.free-cell::after {
+  content: '';
+  position: absolute;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  width: 7px; height: 7px;
+  border-radius: 50%;
+  border: 1.5px solid var(--muted2);
+}
+
+/* ── BOOKING BLOCK (portrait, runs top→down) ── */
+/* The block is absolutely positioned inside the FIRST slot-fill of a run
+   and stretches downward to cover the full duration. */
+.booking-block {
+  position: absolute;
+  inset: 3px 3px 3px 3px;
+  border-radius: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 4px;
+  overflow: hidden;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.bb-member { background: var(--green-light); border: 1.5px solid var(--green-mid); }
+.bb-lesson { background: var(--amber-light); border: 1.5px solid var(--amber-mid); }
+.bb-club   { background: var(--blue-light);  border: 1.5px solid var(--blue-mid);  }
+.bb-maint  {
+  background: repeating-linear-gradient(45deg,#fdecea 0,#fdecea 5px,#fff5f4 5px,#fff5f4 11px);
+  border: 1.5px solid #e8b4ae;
+}
+
+.bb-name {
+  font-size: 0.54rem;
+  font-weight: 600;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  text-align: center;
+  line-height: 1.2;
+}
+.bb-member .bb-name { color: var(--green); }
+.bb-lesson .bb-name { color: var(--amber); }
+.bb-club   .bb-name { color: var(--blue);  }
+.bb-maint  .bb-name { color: var(--red);   }
+
+.bb-time {
+  font-size: 0.44rem;
+  color: var(--muted);
+  letter-spacing: .04em;
+  margin-top: 1px;
+  white-space: nowrap;
+}
+
+/* Now-line: horizontal bar across the slot row at the correct fraction */
+.now-line-h {
+  position: absolute;
+  left: 0; right: 0;
+  height: 2px;
+  background: var(--green-vivid);
+  box-shadow: 0 0 5px rgba(34,164,71,0.4);
+  z-index: 10;
+  pointer-events: none;
+}
+.now-line-h::before {
+  content: '';
+  position: absolute;
+  left: 0; top: 50%;
+  transform: translate(-50%, -50%);
+  width: 7px; height: 7px;
+  background: var(--green-vivid);
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px rgba(34,164,71,0.18);
+}
+
+/* ── SUMMARY PANEL (bottom of each card) ── */
+.summary-panel {
+  flex-shrink: 0;
+  border-top: 1.5px solid var(--border);
+  padding: 5px 8px;
+  background: var(--surface2);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.summary-status { font-size:0.48rem; letter-spacing:.14em; text-transform:uppercase; font-weight:700; }
+.status-free    { color: var(--green); }
+.status-booked  { color: var(--amber); }
+.status-closed  { color: var(--red);   }
+
+.summary-main {
+  font-size: 0.62rem; font-weight: 600; color: var(--text);
+  line-height: 1.25; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+.summary-sub {
+  font-size: 0.52rem; color: var(--text-mid);
+  line-height: 1.3; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+
+/* ── LEGEND ── */
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 5px 16px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+}
+.legend-label { font-size:0.52rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); }
+.legend-item  { display:flex; align-items:center; gap:5px; font-size:0.54rem; color:var(--text-mid); }
+.l-pip    { width:18px; height:7px; border-radius:3px; }
+.l-member { background:var(--green-light); border:1.5px solid var(--green-mid); }
+.l-lesson { background:var(--amber-light); border:1.5px solid var(--amber-mid); }
+.l-club   { background:var(--blue-light);  border:1.5px solid var(--blue-mid);  }
+.l-maint  { background:var(--red-light);   border:1.5px solid #e8b4ae;          }
+.legend-spacer { flex:1; }
+.legend-tag    { font-size:0.52rem; color:var(--muted); letter-spacing:.06em; }
+
+/* ── TICKER ── */
+.ticker {
+  background: var(--green-light);
+  border-top: 1px solid var(--green-mid);
+  padding: 5px 0;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.ticker-track {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: scroll-ticker 35s linear infinite;
+}
+@keyframes scroll-ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+.ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 0 28px;
+  font-size: 0.58rem;
+  font-weight: 500;
+  letter-spacing: .06em;
+  color: var(--green);
+}
+.ticker-dim { color: var(--muted); }
+.ticker-sep { color: var(--green-mid); }
+
+/* ── LOADING ── */
+.loading-overlay {
+  position: fixed; inset:0;
+  background: rgba(240,242,238,0.85);
+  display: flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  gap: 12px; z-index: 100;
+}
+.loading-overlay.hidden { display:none; }
+.spinner {
+  width:28px; height:28px;
+  border:3px solid var(--border);
+  border-top-color: var(--green-vivid);
+  border-radius:50%;
+  animation: spin .8s linear infinite;
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+.loading-text { font-size:0.65rem; letter-spacing:0.15em; text-transform:uppercase; color:var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="loading-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <div class="loading-text">Loading bookings…</div>
+</div>
+
+<header>
+  <div>
+    <div class="club-name">Pirates Tennis Club</div>
+    <div class="club-sub">Court Availability Board</div>
+  </div>
+  <div class="header-right">
+    <div class="live-badge"><span class="pulse-dot"></span>Live</div>
+    <div class="current-time" id="clock">--:--</div>
+    <div class="current-date" id="dateline">—</div>
+  </div>
+</header>
+
+<div class="window-bar">
+  <span class="window-label">Showing</span>
+  <span class="window-range" id="windowRange">—</span>
+  <div class="fetch-status" id="fetchStatus">—</div>
+</div>
+
+<div class="courts-grid" id="courtsGrid"></div>
+
+<div class="legend">
+  <span class="legend-label">Key</span>
+  <div class="legend-item"><div class="l-pip l-member"></div>Member booking</div>
+  <div class="legend-item"><div class="l-pip l-lesson"></div>Coaching</div>
+  <div class="legend-item"><div class="l-pip l-club"></div>Club activity</div>
+  <div class="legend-item"><div class="l-pip l-maint"></div>Maintenance</div>
+  <div class="legend-spacer"></div>
+  <div class="legend-tag">Pirates Tennis Club · Court Display</div>
+</div>
+
+<div class="ticker">
+  <div class="ticker-track" id="tickerTrack"></div>
+</div>
+
+<script>
+/* ════════════════════════════════════════════════════════════
+   Portrait Mockup — JS
+   Reads demoresponse.json, then renders a 3×2 grid where each
+   court card shows 6 time slots stacked vertically.
+   ════════════════════════════════════════════════════════════ */
+
+const COURTS = [
+  { id:1, assetName:'Court 1', type:'members',  label:'Members · Floodlit' },
+  { id:2, assetName:'Court 2', type:'members',  label:'Members · Floodlit' },
+  { id:3, assetName:'Court 3', type:'genflood', label:'General · Floodlit'  },
+  { id:4, assetName:'Court 4', type:'genflood', label:'General · Floodlit'  },
+  { id:5, assetName:'Court 5', type:'general',  label:'General'             },
+  { id:6, assetName:'Court 6', type:'general',  label:'General'             },
+];
+
+const COURT_CLOSE  = 21;
+const SLOT_MINS    = 30;
+const WINDOW_SLOTS = 6;
+
+const BOLT_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`;
+
+let currentBlocks = [];
+
+// ── Demo helpers ──────────────────────────────────────────
+function getNowMins() {
+  const n = new Date(); return n.getHours() * 60 + n.getMinutes();
+}
+
+function hhmm2mins(s) {
+  const [h, m] = s.split(':').map(Number);
+  return h * 60 + m;
+}
+
+function mins2label(m) {
+  const h      = Math.floor(m / 60);
+  const mm     = m % 60;
+  const suffix = h < 12 ? 'am' : 'pm';
+  const h12    = h === 0 ? 12 : h > 12 ? h - 12 : h;
+  return mm === 0 ? `${h12}${suffix}` : `${h12}:${String(mm).padStart(2,'0')}${suffix}`;
+}
+
+function mins2ruler(m) {
+  const h  = Math.floor(m / 60);
+  const mm = m % 60;
+  if (mm === 0) {
+    const suffix = h < 12 ? 'am' : 'pm';
+    const h12    = h === 0 ? 12 : h > 12 ? h - 12 : h;
+    return `${h12}${suffix}`;
+  }
+  return `:${String(mm).padStart(2,'0')}`;
+}
+
+function formatTime(date) {
+  return `${String(date.getHours()).padStart(2,'0')}:${String(date.getMinutes()).padStart(2,'0')}`;
+}
+
+function floorSlot(m) { return Math.floor(m / SLOT_MINS) * SLOT_MINS; }
+
+function courtNumFromName(name) {
+  const match = name.match(/\d+/);
+  return match ? parseInt(match[0]) : null;
+}
+
+function classifyBooking(b) { return 'member'; }
+
+// ── Merge consecutive same-name blocks into runs ──────────
+function mergeBlocks(courtId, allBlocks) {
+  const blocks = allBlocks
+    .filter(b => b.court === courtId)
+    .map(b => ({ name: b.name, type: b.type, startMins: hhmm2mins(b.start), durationMins: b.durationMins || SLOT_MINS }))
+    .sort((a, b) => a.startMins - b.startMins);
+
+  const merged = [];
+  for (const blk of blocks) {
+    const last = merged[merged.length - 1];
+    if (last && last.name === blk.name && last.type === blk.type && last.endMins === blk.startMins) {
+      last.endMins += SLOT_MINS;
+    } else {
+      merged.push({ ...blk, endMins: blk.startMins + blk.durationMins });
+    }
+  }
+  return merged;
+}
+
+function getWindowSlots(nowMins) {
+  const windowStart = floorSlot(nowMins);
+  return Array.from({ length: WINDOW_SLOTS }, (_, i) => windowStart + i * SLOT_MINS);
+}
+
+// ── Summary ───────────────────────────────────────────────
+function getSummary(courtId, runs, windowSlots) {
+  const windowEnd = windowSlots[windowSlots.length - 1] + SLOT_MINS;
+  const lastSlot  = windowSlots[windowSlots.length - 1];
+  const lastOcc   = runs.find(r => r.startMins <= lastSlot && r.endMins > lastSlot);
+
+  if (lastOcc) {
+    const freeAt = lastOcc.endMins;
+    if (freeAt >= COURT_CLOSE * 60) return { status:'closed', main:'No more play today', sub:'' };
+    const next = runs.find(r => r.startMins >= freeAt);
+    if (next) return { status:'booked', main:`Free ${mins2label(freeAt)}`, sub:`then ${next.name} ${mins2label(next.startMins)}` };
+    return { status:'booked', main:`Free from ${mins2label(freeAt)}`, sub:'until close' };
+  } else {
+    const next = runs.find(r => r.startMins >= windowEnd);
+    if (!next) return { status:'free', main:'Free all evening', sub:'' };
+    return { status:'free', main:`Free until ${mins2label(next.startMins)}`, sub:`then ${next.name}` };
+  }
+}
+
+// ── Render ────────────────────────────────────────────────
+function render() {
+  const nowMins      = getNowMins();
+  const windowSlots  = getWindowSlots(nowMins);
+  const windowStart  = windowSlots[0];
+  const windowEnd    = windowSlots[windowSlots.length - 1] + SLOT_MINS;
+
+  // Clock & date
+  const now = new Date();
+  document.getElementById('clock').textContent = formatTime(now);
+  const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  document.getElementById('dateline').textContent =
+    `${DAYS[now.getDay()]} · ${now.getDate()} ${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
+
+  document.getElementById('windowRange').textContent =
+    `${mins2label(windowStart)} – ${mins2label(windowEnd)}`;
+
+  // Courts grid
+  const grid = document.getElementById('courtsGrid');
+  grid.innerHTML = '';
+
+  for (const court of COURTS) {
+    const runs       = mergeBlocks(court.id, currentBlocks);
+    const summary    = getSummary(court.id, runs, windowSlots);
+    const isFloodlit = court.type === 'members' || court.type === 'genflood';
+
+    // ── Build slot rows ──────────────────────────────────
+    // We need to know, for each slot, whether to render a booking block
+    // and how tall it should be (spanning multiple rows).
+    // We use a CSS height trick: the block's bottom is set relative to the
+    // card's slots-stack using a data attribute, calculated after DOM insert.
+
+    const slotRowsHTML = windowSlots.map((sm, idx) => {
+      const run        = runs.find(r => r.startMins <= sm && r.endMins > sm);
+      const isOccupied = !!run;
+      const isStart    = isOccupied && run.startMins === sm;
+      const isHourStart = sm % 60 === 0 && idx > 0;
+
+      const bgCls   = isOccupied ? `occ-${run.type}` : 'free-cell';
+      const hourCls = isHourStart ? ' hour-start' : '';
+
+      // Now-line: does the current minute fall within this slot?
+      let nowLineHTML = '';
+      if (nowMins >= sm && nowMins < sm + SLOT_MINS) {
+        const frac = (nowMins - sm) / SLOT_MINS;
+        nowLineHTML = `<div class="now-line-h" style="top:${(frac*100).toFixed(2)}%"></div>`;
+      }
+
+      // Booking block — only at the start of a run.
+      // We span it using a pixel height set via inline style after mount,
+      // but here we use a data attribute to pass the slot count.
+      let blockHTML = '';
+      if (isStart) {
+        const clamped     = Math.min(run.endMins, windowEnd);
+        const spanSlots   = (clamped - run.startMins) / SLOT_MINS;
+        const timeLabel   = `${mins2label(run.startMins)}–${mins2label(run.endMins)}`;
+        // height: span n slots worth of row height, minus 2×inset (6px total)
+        blockHTML = `
+          <div class="booking-block bb-${run.type}"
+               data-span="${spanSlots}"
+               style="bottom:auto;">
+            <div class="bb-name">${run.name}</div>
+            <div class="bb-time">${timeLabel}</div>
+          </div>`;
+      }
+
+      return `
+        <div class="slot-row${hourCls}" data-slot="${sm}">
+          <div class="slot-time-label">${mins2ruler(sm)}</div>
+          <div class="slot-fill ${bgCls}">
+            ${blockHTML}
+            ${nowLineHTML}
+          </div>
+        </div>`;
+    }).join('');
+
+    // ── Summary panel ────────────────────────────────────
+    const statusLabels = { free:'Court free ›', booked:'Court busy ›', closed:'Closed' };
+    const summaryHTML = `
+      <div class="summary-panel">
+        <div class="summary-status status-${summary.status}">${statusLabels[summary.status]}</div>
+        <div class="summary-main">${summary.main}</div>
+        ${summary.sub ? `<div class="summary-sub">${summary.sub}</div>` : ''}
+      </div>`;
+
+    const card = document.createElement('div');
+    card.className = `court-card type-${court.type}`;
+    card.innerHTML = `
+      <div class="court-header">
+        <span class="court-num">Court ${court.id}</span>
+        <div class="court-divider"></div>
+        <span class="court-type-badge">${court.label}</span>
+        ${isFloodlit ? `<span class="floodlit-icon">${BOLT_SVG} Floodlit</span>` : ''}
+      </div>
+      <div class="slots-stack">${slotRowsHTML}</div>
+      ${summaryHTML}`;
+
+    grid.appendChild(card);
+  }
+
+  // ── Fix booking-block heights after DOM is live ────────
+  // Each block spans N slot-rows. We read the pixel height of a single
+  // slot-row and set the block height accordingly.
+  requestAnimationFrame(() => {
+    document.querySelectorAll('.booking-block[data-span]').forEach(block => {
+      const span     = parseFloat(block.getAttribute('data-span'));
+      const fill     = block.closest('.slot-fill');
+      const row      = fill.closest('.slot-row');
+      const rowH     = row.getBoundingClientRect().height;
+      // Full height: span rows, minus top inset (3px from first row)
+      // We position absolute inside the first fill, so we reach into the
+      // rows below by overflowing (the slots-stack has overflow:hidden removed).
+      block.style.height = `calc(${span} * ${rowH}px - 6px)`;
+    });
+  });
+
+  // ── Ticker ────────────────────────────────────────────
+  const cutoff  = nowMins + 4 * 60;
+  const upcoming = [];
+  for (const court of COURTS) {
+    for (const run of mergeBlocks(court.id, currentBlocks)) {
+      if (run.startMins > nowMins && run.startMins <= cutoff) {
+        upcoming.push({ courtId: court.id, ...run });
+      }
+    }
+  }
+  upcoming.sort((a, b) => a.startMins - b.startMins);
+
+  const tickerItems = upcoming.map(u =>
+    `<span class="ticker-item">
+      Court ${u.courtId} <span class="ticker-dim">·</span>
+      ${u.name} <span class="ticker-dim">·</span>
+      ${mins2label(u.startMins)}–${mins2label(u.endMins)}
+      <span class="ticker-sep"> ◆ </span>
+    </span>`
+  ).join('');
+
+  const track = document.getElementById('tickerTrack');
+  track.innerHTML = tickerItems + tickerItems;
+}
+
+// ── Load demo data ────────────────────────────────────────
+async function loadDemo() {
+  try {
+    const res  = await fetch('api/demoresponse.json');
+    const data = await res.json();
+
+    const active = (data.bookings?.active ?? []).filter(b => b.parent_booking_id === null);
+    currentBlocks = active.map(b => ({
+      court:        courtNumFromName(b.club_asset_name),
+      start:        b.start_time.slice(0, 5),
+      name:         b.owner_name || 'Block Booking',
+      type:         classifyBooking(b),
+      durationMins: parseInt(b.length, 10) || SLOT_MINS,
+    })).filter(b => b.court !== null);
+
+    document.getElementById('fetchStatus').textContent = 'Demo data';
+  } catch (err) {
+    console.error('Failed to load demoresponse.json:', err);
+    document.getElementById('fetchStatus').textContent = 'Data load failed';
+    document.getElementById('fetchStatus').className = 'fetch-status error';
+  }
+
+  render();
+  document.getElementById('loadingOverlay').classList.add('hidden');
+}
+
+// Re-render on resize so block heights stay correct
+window.addEventListener('resize', render);
+
+loadDemo();
+setInterval(render, 30_000);
+</script>
+</body>
+</html>

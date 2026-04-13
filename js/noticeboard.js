@@ -229,26 +229,70 @@ function getSummary(courtId, runs, windowSlots) {
 // ════════════════════════════════════════════════════════════
 //  RENDER — builds the full DOM from currentBlocks state
 // ════════════════════════════════════════════════════════════
+
+function isPortrait() {
+  return window.innerHeight > window.innerWidth;
+}
+
 function render() {
+  const portrait = isPortrait();
+  document.body.classList.toggle('is-portrait',  portrait);
+  document.body.classList.toggle('is-landscape', !portrait);
+
   const nowMins     = getNowMins();
   const windowSlots = getWindowSlots(nowMins);
   const windowStart = windowSlots[0];
   const windowEnd   = windowSlots[windowSlots.length - 1] + SLOT_MINS;
   const nowFrac     = (nowMins - windowStart) / (WINDOW_SLOTS * SLOT_MINS);
 
-  // ── Clock
+  // ── Shared: clock & date
   document.getElementById('clock').textContent = formatTime(new Date());
   const d = new Date();
-
   const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   document.getElementById('dateline').textContent =
     `${DAYS[d.getDay()]} · ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
 
-  // ── Window range label
+  // ── Shared: window range label
   document.getElementById('windowRange').textContent =
     `${mins2label(windowStart)} – ${mins2label(windowEnd)}`;
 
+  if (portrait) {
+    renderPortrait(nowMins, windowSlots, windowEnd);
+  } else {
+    renderLandscape(nowMins, windowSlots, windowStart, windowEnd, nowFrac);
+  }
+
+  // ── Shared: ticker — upcoming bookings in the next 4 hours
+  const cutoff   = nowMins + 4 * 60;
+  const upcoming = [];
+
+  for (const court of COURTS) {
+    for (const run of mergeBlocks(court.id, currentBlocks)) {
+      if (run.startMins > nowMins && run.startMins <= cutoff) {
+        upcoming.push({ courtId: court.id, ...run });
+      }
+    }
+  }
+
+  upcoming.sort((a, b) => a.startMins - b.startMins);
+
+  const tickerItems = upcoming.map(u =>
+    `<span class="ticker-item">
+      Court ${u.courtId} <span class="ticker-dim">·</span>
+      ${u.name} <span class="ticker-dim">·</span>
+      ${mins2label(u.startMins)}–${mins2label(u.endMins)}
+      <span class="ticker-sep"> ◆ </span>
+    </span>`
+  ).join('');
+
+  document.getElementById('tickerTrack').innerHTML = tickerItems + tickerItems;
+}
+
+// ════════════════════════════════════════════════════════════
+//  RENDER LANDSCAPE — horizontal slot rows (original layout)
+// ════════════════════════════════════════════════════════════
+function renderLandscape(nowMins, windowSlots, windowStart, windowEnd, nowFrac) {
   // ── Time ruler
   document.getElementById('rulerSlots').innerHTML = windowSlots.map((sm, idx) => {
     const isOnHour = sm % 60 === 0;
@@ -266,18 +310,16 @@ function render() {
     const summary    = getSummary(court.id, runs, windowSlots);
     const isFloodlit = court.type === 'members' || court.type === 'genflood';
 
-    // Build slot cells
     const cellsHTML = windowSlots.map((sm, idx) => {
-      const run        = runs.find(r => r.startMins <= sm && r.endMins > sm);
-      const isOccupied = !!run;
-      const isStart    = isOccupied && run.startMins === sm;
+      const run         = runs.find(r => r.startMins <= sm && r.endMins > sm);
+      const isOccupied  = !!run;
+      const isStart     = isOccupied && run.startMins === sm;
       const isHourStart = sm % 60 === 0 && idx > 0;
-      const bgCls   = isOccupied ? `occ-${run.type}` : 'free-cell';
-      const hourCls = isHourStart ? ' hour-start' : '';
+      const bgCls       = isOccupied ? `occ-${run.type}` : 'free-cell';
+      const hourCls     = isHourStart ? ' hour-start' : '';
 
       let blockHTML = '';
       if (isStart) {
-        // Calculate visual width to span all slots in this run
         const clamped   = Math.min(run.endMins, windowEnd);
         const spanned   = (clamped - run.startMins) / SLOT_MINS;
         const widthCalc = `calc(${spanned * 100}% + ${spanned - 1}px)`;
@@ -292,7 +334,6 @@ function render() {
       return `<div class="slot-cell ${bgCls}${hourCls}">${blockHTML}</div>`;
     }).join('');
 
-    // Summary panel
     const statusLabels = { free:'Court free ›', booked:'Court busy ›', closed:'Closed' };
     const summaryHTML = `
       <div class="summary-inner">
@@ -320,31 +361,85 @@ function render() {
 
     courtsList.appendChild(row);
   }
+}
 
-  // ── Ticker: upcoming bookings in the next 4 hours
-  const cutoff   = nowMins + 4 * 60;
-  const upcoming = [];
+// ════════════════════════════════════════════════════════════
+//  RENDER PORTRAIT — 3×2 grid, slots stacked vertically
+// ════════════════════════════════════════════════════════════
+function renderPortrait(nowMins, windowSlots, windowEnd) {
+  const grid = document.getElementById('courtsGrid');
+  grid.innerHTML = '';
 
   for (const court of COURTS) {
-    for (const run of mergeBlocks(court.id, currentBlocks)) {
-      if (run.startMins > nowMins && run.startMins <= cutoff) {
-        upcoming.push({ courtId: court.id, ...run });
+    const runs       = mergeBlocks(court.id, currentBlocks);
+    const summary    = getSummary(court.id, runs, windowSlots);
+    const isFloodlit = court.type === 'members' || court.type === 'genflood';
+
+    const slotRowsHTML = windowSlots.map((sm, idx) => {
+      const run         = runs.find(r => r.startMins <= sm && r.endMins > sm);
+      const isOccupied  = !!run;
+      const isStart     = isOccupied && run.startMins === sm;
+      const isHourStart = sm % 60 === 0 && idx > 0;
+      const bgCls       = isOccupied ? `occ-${run.type}` : 'free-cell';
+      const hourCls     = isHourStart ? ' hour-start' : '';
+
+      let nowLineHTML = '';
+      if (nowMins >= sm && nowMins < sm + SLOT_MINS) {
+        const frac = (nowMins - sm) / SLOT_MINS;
+        nowLineHTML = `<div class="now-line-h" style="top:${(frac * 100).toFixed(2)}%"></div>`;
       }
-    }
+
+      let blockHTML = '';
+      if (isStart) {
+        const clamped   = Math.min(run.endMins, windowEnd);
+        const spanSlots = (clamped - run.startMins) / SLOT_MINS;
+        const timeLabel = `${mins2label(run.startMins)}–${mins2label(run.endMins)}`;
+        blockHTML = `
+          <div class="booking-block bb-${run.type}" data-span="${spanSlots}" style="bottom:auto;">
+            <div class="bb-name">${run.name}</div>
+            <div class="bb-time">${timeLabel}</div>
+          </div>`;
+      }
+
+      return `
+        <div class="slot-row${hourCls}">
+          <div class="slot-time-label">${mins2ruler(sm)}</div>
+          <div class="slot-fill ${bgCls}">
+            ${blockHTML}
+            ${nowLineHTML}
+          </div>
+        </div>`;
+    }).join('');
+
+    const statusLabels = { free:'Court free ›', booked:'Court busy ›', closed:'Closed' };
+    const card = document.createElement('div');
+    card.className = `court-card type-${court.type}`;
+    card.innerHTML = `
+      <div class="court-header">
+        <span class="court-num">Court ${court.id}</span>
+        <div class="court-divider"></div>
+        <span class="court-type-badge">${court.label}</span>
+        ${isFloodlit ? `<span class="floodlit-icon">${BOLT_SVG} Floodlit</span>` : ''}
+      </div>
+      <div class="slots-stack">${slotRowsHTML}</div>
+      <div class="summary-panel-p">
+        <div class="summary-status status-${summary.status}">${statusLabels[summary.status]}</div>
+        <div class="summary-main">${summary.main}</div>
+        ${summary.sub ? `<div class="summary-sub">${summary.sub}</div>` : ''}
+      </div>`;
+
+    grid.appendChild(card);
   }
 
-  upcoming.sort((a, b) => a.startMins - b.startMins);
-
-  const tickerItems = upcoming.map(u =>
-    `<span class="ticker-item">
-      Court ${u.courtId} <span class="ticker-dim">·</span>
-      ${u.name} <span class="ticker-dim">·</span>
-      ${mins2label(u.startMins)}–${mins2label(u.endMins)}
-      <span class="ticker-sep"> ◆ </span>
-    </span>`
-  ).join('');
-
-  document.getElementById('tickerTrack').innerHTML = tickerItems + tickerItems;
+  // Fix booking-block heights now that rows have real pixel heights
+  requestAnimationFrame(() => {
+    document.querySelectorAll('#courtsGrid .booking-block[data-span]').forEach(block => {
+      const span = parseFloat(block.getAttribute('data-span'));
+      const row  = block.closest('.slot-row');
+      const rowH = row.getBoundingClientRect().height;
+      block.style.height = `calc(${span} * ${rowH}px - 6px)`;
+    });
+  });
 }
 
 // ════════════════════════════════════════════════════════════
@@ -362,3 +457,4 @@ function tickClock() {
 fetchBookings();                                  // Initial load on page open
 setInterval(fetchBookings, REFRESH_INTERVAL_MS);  // Re-fetch API every 5 minutes
 setInterval(tickClock, 30_000);                   // Re-render every 30 seconds
+window.addEventListener('resize', render);        // Switch layout on orientation change
