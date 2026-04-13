@@ -440,8 +440,9 @@ header {
 .legend-label { font-size:0.57rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); }
 .legend-item  { display:flex; align-items:center; gap:6px; font-size:0.6rem; color:var(--text-mid); }
 
-.l-pip    { width:22px; height:8px; border-radius:3px; }
-.l-member { background:var(--green-light); border:1.5px solid var(--green-mid); }
+.l-pip      { width:22px; height:8px; border-radius:3px; }
+.l-avail    { background: var(--surface); border:1.5px solid var(--border-strong); }
+.l-member   { background:var(--green-light); border:1.5px solid var(--green-mid); }
 .l-lesson { background:var(--amber-light); border:1.5px solid var(--amber-mid); }
 .l-club   { background:var(--blue-light);  border:1.5px solid var(--blue-mid);  }
 .l-maint  { background:var(--red-light);   border:1.5px solid #e8b4ae;          }
