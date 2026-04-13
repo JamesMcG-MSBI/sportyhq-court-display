@@ -203,7 +203,9 @@ function mergeBlocks(courtId, allBlocks) {
 function getWindowSlots(nowMins) {
   let windowStart;
   if (nowMins >= NEXT_DAY_AFTER) {
-    windowStart = NEXT_DAY_OPEN;           // After 11pm: show 6am onwards (tomorrow)
+    windowStart = NEXT_DAY_OPEN;           // 11pm–midnight: show 6am onwards (tomorrow)
+  } else if (nowMins < NEXT_DAY_OPEN + SLOT_MINS) {
+    windowStart = NEXT_DAY_OPEN;           // midnight–6:30am: show 6am onwards (today)
   } else if (nowMins >= EVENING_LOCK_START) {
     windowStart = EVENING_LOCK_START;      // 8pm–11pm: freeze at 8pm
   } else {
@@ -257,8 +259,10 @@ function render() {
   document.body.classList.toggle('is-landscape', !portrait);
 
   const nowMins     = getNowMins();
-  const nextDayMode = nowMins >= NEXT_DAY_AFTER;
-  const cursorMins  = nextDayMode ? -1 : nowMins;  // -1 hides the now-cursor when showing tomorrow
+  const nextDayMode  = nowMins >= NEXT_DAY_AFTER;                           // 11pm–midnight: fetch/show tomorrow
+  const earlyMorning = !nextDayMode && nowMins < NEXT_DAY_OPEN + SLOT_MINS; // midnight–6:30am: frozen 6am window
+  // Hide cursor before 6am; reveal it once it enters the 6am+ window
+  const cursorMins   = (nextDayMode || (earlyMorning && nowMins < NEXT_DAY_OPEN)) ? -1 : nowMins;
   const windowSlots = getWindowSlots(nowMins);
   const windowStart = windowSlots[0];
   const windowEnd   = windowSlots[windowSlots.length - 1] + SLOT_MINS;
