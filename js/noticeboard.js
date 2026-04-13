@@ -49,6 +49,10 @@ const COURT_CLOSE  = 21;  // Closing hour (24h)
 const SLOT_MINS    = 30;  // Duration of each slot in minutes
 const WINDOW_SLOTS = 6;   // Number of slots visible (6 × 30min = 3 hours)
 
+const EVENING_LOCK_START = 20 * 60;  // 8:00pm — freeze window from this time onwards
+const NEXT_DAY_AFTER     = 23 * 60;  // 11:00pm — switch to following day's bookings
+const NEXT_DAY_OPEN      =  6 * 60;  // 6:00am  — first visible slot in next-day mode
+
 const BOLT_SVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`;
 
 // ════════════════════════════════════════════════════════════
@@ -64,7 +68,7 @@ let lastFetchTime = null;
 async function fetchBookings() {
   setFetchStatus('loading', 'Refreshing…');
 
-  const today = getTodayDateString();
+  const today = getNowMins() >= NEXT_DAY_AFTER ? getTomorrowDateString() : getTodayDateString();
   const url   = `${API_BASE}?date=${today}`;
 
   try {
@@ -118,6 +122,12 @@ function setFetchStatus(state, text) {
 
 function getTodayDateString() {
   const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function getTomorrowDateString() {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
 
@@ -191,7 +201,14 @@ function mergeBlocks(courtId, allBlocks) {
 //  WINDOW — the 6 visible 30-min slots starting from now
 // ════════════════════════════════════════════════════════════
 function getWindowSlots(nowMins) {
-  const windowStart = floorSlot(nowMins);
+  let windowStart;
+  if (nowMins >= NEXT_DAY_AFTER) {
+    windowStart = NEXT_DAY_OPEN;           // After 11pm: show 6am onwards (tomorrow)
+  } else if (nowMins >= EVENING_LOCK_START) {
+    windowStart = EVENING_LOCK_START;      // 8pm–11pm: freeze at 8pm
+  } else {
+    windowStart = floorSlot(nowMins);      // Normal: slide with current time
+  }
   return Array.from({ length: WINDOW_SLOTS }, (_, i) => windowStart + i * SLOT_MINS);
 }
 
@@ -240,14 +257,16 @@ function render() {
   document.body.classList.toggle('is-landscape', !portrait);
 
   const nowMins     = getNowMins();
+  const nextDayMode = nowMins >= NEXT_DAY_AFTER;
+  const cursorMins  = nextDayMode ? -1 : nowMins;  // -1 hides the now-cursor when showing tomorrow
   const windowSlots = getWindowSlots(nowMins);
   const windowStart = windowSlots[0];
   const windowEnd   = windowSlots[windowSlots.length - 1] + SLOT_MINS;
-  const nowFrac     = (nowMins - windowStart) / (WINDOW_SLOTS * SLOT_MINS);
+  const nowFrac     = (cursorMins - windowStart) / (WINDOW_SLOTS * SLOT_MINS);
 
-  // ── Shared: clock & date
+  // ── Shared: clock & date (show tomorrow's date when in next-day mode)
   document.getElementById('clock').textContent = formatTime(new Date());
-  const d = new Date();
+  const d = nextDayMode ? (() => { const t = new Date(); t.setDate(t.getDate() + 1); return t; })() : new Date();
   const DAYS   = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
   document.getElementById('dateline').textContent =
@@ -258,18 +277,20 @@ function render() {
     `${mins2label(windowStart)} – ${mins2label(windowEnd)}`;
 
   if (portrait) {
-    renderPortrait(nowMins, windowSlots, windowEnd);
+    renderPortrait(cursorMins, windowSlots, windowEnd);
   } else {
-    renderLandscape(nowMins, windowSlots, windowStart, windowEnd, nowFrac);
+    renderLandscape(cursorMins, windowSlots, windowStart, windowEnd, nowFrac);
   }
 
   // ── Shared: ticker — upcoming bookings in the next 4 hours
-  const cutoff   = nowMins + 4 * 60;
-  const upcoming = [];
+  // In next-day mode, anchor from the window start rather than real now
+  const tickerBase = nextDayMode ? windowStart : nowMins;
+  const cutoff     = tickerBase + 4 * 60;
+  const upcoming   = [];
 
   for (const court of COURTS) {
     for (const run of mergeBlocks(court.id, currentBlocks)) {
-      if (run.startMins > nowMins && run.startMins <= cutoff) {
+      if (run.startMins > tickerBase && run.startMins <= cutoff) {
         upcoming.push({ courtId: court.id, ...run });
       }
     }
