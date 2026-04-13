@@ -520,7 +520,8 @@ header {
 .portrait-only  { display: none; }
 
 body.is-portrait  .landscape-only { display: none !important; }
-body.is-portrait  .portrait-only  { display: flex; }
+body.is-portrait  .portrait-only  { display: block; }
+body.is-portrait  .courts-grid    { display: grid; }
 body.is-landscape .portrait-only  { display: none !important; }
 
 /* ════════════════════════════════════════════════════════════
