@@ -240,7 +240,7 @@ function getSummary(courtId, runs, windowSlots) {
     // Court is free at the end of the window.
     // Show when the next booking starts.
     const next = runs.find(r => r.startMins >= windowEnd);
-    if (!next) return { status:'free', main:'Free all evening', sub:'' };
+    if (!next) return { status:'free', main: (new Date().getHours() < 17 ? 'Free all day' : 'Free all evening'), sub:'' };
     return { status:'free', main:`Free until ${mins2label(next.startMins)}`, sub:`then ${next.name}` };
   }
 }
