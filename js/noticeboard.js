@@ -19,10 +19,10 @@ const REFRESH_INTERVAL_MS = 5 * 60 * 1000; // 5 minutes
 //  type: 'members' | 'genflood' | 'general'
 // ════════════════════════════════════════════════════════════
 const COURTS = [
-  { id:1, assetName:'Court 1', type:'members',  label:'Members · Floodlit' },
-  { id:2, assetName:'Court 2', type:'members',  label:'Members · Floodlit' },
-  { id:3, assetName:'Court 3', type:'genflood', label:'General · Floodlit'  },
-  { id:4, assetName:'Court 4', type:'genflood', label:'General · Floodlit'  },
+  { id:1, assetName:'Court 1', type:'members',  label:'Members'  },
+  { id:2, assetName:'Court 2', type:'members',  label:'Members'  },
+  { id:3, assetName:'Court 3', type:'genflood', label:'Floodlights' },
+  { id:4, assetName:'Court 4', type:'genflood', label:'Floodlights' },
   { id:5, assetName:'Court 5', type:'general',  label:'General'             },
   { id:6, assetName:'Court 6', type:'general',  label:'General'             },
 ];
@@ -374,7 +374,7 @@ function renderLandscape(nowMins, windowSlots, windowStart, windowEnd, nowFrac) 
         <span class="court-num">Court ${court.id}</span>
         <div class="court-divider"></div>
         <span class="court-type-badge">${court.label}</span>
-        ${isFloodlit ? `<span class="floodlit-icon">${BOLT_SVG} Floodlit</span>` : ''}
+        ${isFloodlit ? `<span class="floodlit-icon" aria-label="Floodlit court" title="Floodlit court">${BOLT_SVG}</span>` : ''}
       </div>
       <div class="court-body">
         <div class="slots-track">
@@ -444,7 +444,7 @@ function renderPortrait(nowMins, windowSlots, windowEnd) {
         <span class="court-num">Court ${court.id}</span>
         <div class="court-divider"></div>
         <span class="court-type-badge">${court.label}</span>
-        ${isFloodlit ? `<span class="floodlit-icon">${BOLT_SVG} Floodlit</span>` : ''}
+        ${isFloodlit ? `<span class="floodlit-icon" aria-label="Floodlit court" title="Floodlit court">${BOLT_SVG}</span>` : ''}
       </div>
       <div class="slots-stack">${slotRowsHTML}</div>
       <div class="summary-panel-p">

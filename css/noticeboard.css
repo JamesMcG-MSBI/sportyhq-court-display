@@ -246,6 +246,7 @@ header {
   background: var(--surface2);
   border-bottom: 1px solid var(--border);
   flex-shrink: 0;
+  min-width: 0;
 }
 
 .court-num {
@@ -268,6 +269,11 @@ header {
   text-transform: uppercase;
   padding: 2px 8px;
   border-radius: 20px;
+  white-space: nowrap;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .type-members  .court-type-badge { background:var(--green-light); color:var(--c-members);  border:1px solid var(--green-mid); }
@@ -278,14 +284,12 @@ header {
   margin-left: auto;
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 0.56rem;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  justify-content: center;
+  line-height: 0;
   color: var(--muted);
 }
 
-.floodlit-icon svg { width:11px; height:11px; opacity:0.5; }
+.floodlit-icon svg { width:12px; height:12px; opacity:0.55; }
 
 /* ── COURT BODY ── */
 .court-body {
@@ -561,7 +565,6 @@ body.is-landscape .portrait-only  { display: none !important; }
 .court-card .court-header       { padding: 4px 8px; gap: 6px; }
 .court-card .court-num          { font-size: 1rem; }
 .court-card .court-type-badge   { font-size: 0.5rem; padding: 1px 6px; letter-spacing: 0.12em; }
-.court-card .floodlit-icon      { font-size: 0.48rem; gap: 3px; }
 .court-card .floodlit-icon svg  { width: 9px; height: 9px; }
 
 /* ── Slots stack (vertical) ── */
