@@ -608,7 +608,7 @@ body.is-landscape .portrait-only  { display: none !important; }
   flex: 1;
   height: 100%;
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 .slot-fill.free-cell::after {
   content: '';
@@ -933,6 +933,11 @@ body.is-landscape .portrait-only  { display: none !important; }
   /* Give portrait cards a fixed comfortable height instead of stretching */
   .court-card {
     min-height: 220px;
+  }
+
+  /* Make each 30-min slot row taller so content is readable */
+  .slot-row {
+    min-height: 48px;
   }
 
   /* ── Timeline view: landscape rows (hide; portrait renderer takes over) ── */
