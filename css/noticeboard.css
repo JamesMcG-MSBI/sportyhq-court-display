@@ -872,20 +872,20 @@ body.is-landscape .portrait-only  { display: none !important; }
 .usage-slot.slot-free  .slot-type-label { color: var(--muted); }
 .usage-slot.slot-free  .slot-name       { color: var(--text-mid); font-weight: 400; }
 
-/* ── FREE-ALL — green tint, court is available ── */
+/* ── FREE-ALL — white/neutral, matches the "Available" legend entry ── */
 .usage-slot.slot-free-all .slot-spine {
-  background: var(--green-light);
-  border-right-color: var(--green-mid);
+  background: var(--surface2);
+  border-right-color: var(--border);
 }
 
 .usage-slot.slot-free-all .slot-spine .spine-time,
-.usage-slot.slot-free-all .slot-spine .spine-end-time { color: var(--green); }
-.usage-slot.slot-free-all .slot-spine .spine-connector { background: var(--green-mid); }
+.usage-slot.slot-free-all .slot-spine .spine-end-time { color: var(--muted); }
+.usage-slot.slot-free-all .slot-spine .spine-connector { background: var(--border); }
 
-.usage-slot.slot-free-all .slot-content { background: var(--green-light); }
-.usage-slot.slot-free-all .slot-type-label { color: var(--green); }
-.usage-slot.slot-free-all .slot-name       { color: var(--green); font-weight: 600; }
-.usage-slot.slot-free-all .slot-duration   { color: var(--green); opacity: 0.75; }
+.usage-slot.slot-free-all .slot-content { background: transparent; }
+.usage-slot.slot-free-all .slot-type-label { color: var(--muted); }
+.usage-slot.slot-free-all .slot-name       { color: var(--text-mid); font-weight: 400; }
+.usage-slot.slot-free-all .slot-duration   { color: var(--muted); }
 
 /* ── BOOKED — coloured backgrounds matching booking type ── */
 .usage-slot.slot-booked-member .slot-content { background: var(--green-light); }
