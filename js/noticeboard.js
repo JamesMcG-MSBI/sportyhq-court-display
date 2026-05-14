@@ -264,7 +264,7 @@ function getUsageSlots(courtId, nowMins) {
   let cursor = Math.max(nowMins, openMin);
   let first  = true;
 
-  while (segments.length < 3 && cursor < closeMin) {
+  while (segments.length < 5 && cursor < closeMin) {
     // Is there a booking covering cursor?
     const booking = runs.find(r => r.startMins <= cursor && r.endMins > cursor);
     if (booking) {

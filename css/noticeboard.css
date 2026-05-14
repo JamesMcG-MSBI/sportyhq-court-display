@@ -887,3 +887,73 @@ body.is-landscape .portrait-only  { display: none !important; }
 .usage-slot.slot-booked-lesson .slot-type-label { color: var(--amber); }
 .usage-slot.slot-booked-club   .slot-type-label { color: var(--blue);  }
 .usage-slot.slot-booked-maint  .slot-type-label { color: var(--red);   }
+
+/* ════════════════════════════════════════════════════════════
+   MOBILE — single-column scrollable layout (≤ 600px)
+   The kiosk (1920×1280) is unaffected; this only fires on
+   narrow phone-sized viewports.
+   ════════════════════════════════════════════════════════════ */
+@media (max-width: 600px) {
+  /* Allow the page to scroll rather than clipping to 100vh */
+  body {
+    height: auto;
+    min-height: 100dvh;
+    overflow-y: auto;
+  }
+
+  /* ── Header: stack club name / toggle / clock vertically ── */
+  header {
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px 14px 8px;
+  }
+
+  .club-name    { font-size: 1.3rem; }
+  .current-time { font-size: 1.6rem; }
+
+  /* Push the view toggle to its own full-width row */
+  .view-toggle {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+  }
+
+  /* ── Sub-bar / window-bar ── */
+  .window-bar { padding: 6px 14px; }
+
+  /* ── Timeline view: single-column portrait grid ── */
+  .courts-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    overflow-y: visible;
+    padding: 8px 12px;
+    gap: 8px;
+  }
+
+  /* Give portrait cards a fixed comfortable height instead of stretching */
+  .court-card {
+    min-height: 220px;
+  }
+
+  /* ── Timeline view: landscape rows (hide; portrait renderer takes over) ── */
+  .courts-list  { padding: 8px 12px; gap: 6px; }
+  .summary-panel { width: 120px; }
+
+  /* ── Slot-list view: single-column ── */
+  .slot-courts-grid {
+    grid-template-columns: 1fr;
+    grid-template-rows: none;
+    overflow-y: visible;
+    padding: 8px 12px;
+    gap: 8px;
+  }
+
+  /* Give slot cards enough room to show 5 slots comfortably */
+  .slot-court-card {
+    min-height: 280px;
+  }
+
+  /* ── Legend and ticker: low value on small screens, hide them ── */
+  .legend { display: none; }
+  .ticker  { display: none; }
+}
