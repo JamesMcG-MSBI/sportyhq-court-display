@@ -169,6 +169,13 @@ function floorSlot(m) {
   return Math.floor(m / SLOT_MINS) * SLOT_MINS;
 }
 
+function mins2duration(m) {
+  if (m < 60) return `${m} min`;
+  const h = Math.floor(m / 60);
+  const r = m % 60;
+  return r === 0 ? `${h} hr` : `${h} hr ${r} min`;
+}
+
 // ════════════════════════════════════════════════════════════
 //  MERGE consecutive same-name 30-min blocks → visual runs
 //  e.g. 3 × "Smith / Jones" at 09:00, 09:30, 10:00
@@ -246,6 +253,57 @@ function getSummary(courtId, runs, windowSlots) {
 }
 
 // ════════════════════════════════════════════════════════════
+//  USAGE SLOTS — next 3 booked/free segments from nowMins
+//  Used exclusively by the slot-list view.
+// ════════════════════════════════════════════════════════════
+function getUsageSlots(courtId, nowMins) {
+  const runs     = mergeBlocks(courtId, currentBlocks);
+  const openMin  = COURT_OPEN  * 60;
+  const closeMin = COURT_CLOSE * 60;
+  const segments = [];
+  let cursor = Math.max(nowMins, openMin);
+  let first  = true;
+
+  while (segments.length < 3 && cursor < closeMin) {
+    // Is there a booking covering cursor?
+    const booking = runs.find(r => r.startMins <= cursor && r.endMins > cursor);
+    if (booking) {
+      segments.push({
+        status:      'booked',
+        bookingType: booking.type,
+        name:        booking.name,
+        startMins:   booking.startMins,
+        endMins:     booking.endMins,
+        isNow:       first,
+      });
+      cursor = booking.endMins;
+    } else {
+      // Find the next booking strictly after cursor
+      const next = runs
+        .filter(r => r.startMins >= cursor)
+        .sort((a, b) => a.startMins - b.startMins)[0];
+
+      if (!next) {
+        // Free for the rest of the day
+        segments.push({ status: 'free-all', startMins: cursor, endMins: closeMin, isNow: first });
+        break;
+      }
+      // Free gap until next booking
+      segments.push({ status: 'free', startMins: cursor, endMins: next.startMins, isNow: first });
+      cursor = next.startMins;
+    }
+    first = false;
+  }
+
+  // Fallback: after close, or empty day
+  if (segments.length === 0) {
+    segments.push({ status: 'free-all', startMins: Math.min(cursor, closeMin), endMins: closeMin, isNow: true });
+  }
+
+  return segments;
+}
+
+// ════════════════════════════════════════════════════════════
 //  RENDER — builds the full DOM from currentBlocks state
 // ════════════════════════════════════════════════════════════
 
@@ -254,19 +312,12 @@ function isPortrait() {
 }
 
 function render() {
-  const portrait = isPortrait();
-  document.body.classList.toggle('is-portrait',  portrait);
-  document.body.classList.toggle('is-landscape', !portrait);
-
-  const nowMins     = getNowMins();
+  const view       = document.body.dataset.view || 'timeline';
+  const nowMins    = getNowMins();
   const nextDayMode  = nowMins >= NEXT_DAY_AFTER;                           // 11pm–midnight: fetch/show tomorrow
   const earlyMorning = !nextDayMode && nowMins < NEXT_DAY_OPEN + SLOT_MINS; // midnight–6:30am: frozen 6am window
   // Hide cursor before 6am; reveal it once it enters the 6am+ window
   const cursorMins   = (nextDayMode || (earlyMorning && nowMins < NEXT_DAY_OPEN)) ? -1 : nowMins;
-  const windowSlots = getWindowSlots(nowMins);
-  const windowStart = windowSlots[0];
-  const windowEnd   = windowSlots[windowSlots.length - 1] + SLOT_MINS;
-  const nowFrac     = (cursorMins - windowStart) / (WINDOW_SLOTS * SLOT_MINS);
 
   // ── Shared: clock & date (show tomorrow's date when in next-day mode)
   document.getElementById('clock').textContent = formatTime(new Date());
@@ -276,19 +327,33 @@ function render() {
   document.getElementById('dateline').textContent =
     `${DAYS[d.getDay()]} · ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
 
-  // ── Shared: window range label
-  document.getElementById('windowRange').textContent =
-    `${mins2label(windowStart)} – ${mins2label(windowEnd)}`;
-
-  if (portrait) {
-    renderPortrait(cursorMins, windowSlots, windowEnd);
+  if (view === 'slots') {
+    // ── Slot-list view
+    const effectiveNow = nextDayMode ? NEXT_DAY_OPEN : nowMins;
+    renderSlotList(effectiveNow);
   } else {
-    renderLandscape(cursorMins, windowSlots, windowStart, windowEnd, nowFrac);
+    // ── Timeline view (portrait / landscape)
+    const portrait = isPortrait();
+    document.body.classList.toggle('is-portrait',  portrait);
+    document.body.classList.toggle('is-landscape', !portrait);
+
+    const windowSlots = getWindowSlots(nowMins);
+    const windowStart = windowSlots[0];
+    const windowEnd   = windowSlots[windowSlots.length - 1] + SLOT_MINS;
+    const nowFrac     = (cursorMins - windowStart) / (WINDOW_SLOTS * SLOT_MINS);
+
+    document.getElementById('windowRange').textContent =
+      `${mins2label(windowStart)} – ${mins2label(windowEnd)}`;
+
+    if (portrait) {
+      renderPortrait(cursorMins, windowSlots, windowEnd);
+    } else {
+      renderLandscape(cursorMins, windowSlots, windowStart, windowEnd, nowFrac);
+    }
   }
 
   // ── Shared: ticker — upcoming bookings in the next 4 hours
-  // In next-day mode, anchor from the window start rather than real now
-  const tickerBase = nextDayMode ? windowStart : nowMins;
+  const tickerBase = nextDayMode ? NEXT_DAY_OPEN : nowMins;
   const cutoff     = tickerBase + 4 * 60;
   const upcoming   = [];
 
@@ -465,6 +530,81 @@ function renderPortrait(nowMins, windowSlots, windowEnd) {
       block.style.height = `calc(${span} * ${rowH}px - 6px)`;
     });
   });
+}
+
+// ════════════════════════════════════════════════════════════
+//  RENDER SLOT LIST — 3×2 grid, each card shows next 3 segments
+// ════════════════════════════════════════════════════════════
+function renderSlotList(nowMins) {
+  const grid = document.getElementById('slotGrid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  const closeMin   = COURT_CLOSE * 60;
+  const typeLabels = { member: 'Member Booking', lesson: 'Coaching', club: 'Club Activity', maint: 'Maintenance' };
+
+  for (const court of COURTS) {
+    const segs       = getUsageSlots(court.id, nowMins);
+    const isFloodlit = court.type === 'members' || court.type === 'genflood';
+
+    const slotsHTML = segs.map((seg, idx) => {
+      const isFree    = seg.status === 'free' || seg.status === 'free-all';
+      const isFreeAll = seg.status === 'free-all';
+      const isOnly    = segs.length === 1;
+
+      let slotCls, typeLabel, nameText;
+      if (isFreeAll) {
+        slotCls   = 'slot-free-all';
+        typeLabel = isOnly ? 'Available all day' : 'Available';
+        nameText  = isOnly ? 'Court is free'     : 'Free for the rest of the day';
+      } else if (isFree) {
+        slotCls   = 'slot-free';
+        typeLabel = 'Available';
+        nameText  = 'Court free to book';
+      } else {
+        slotCls   = `slot-booked-${seg.bookingType}`;
+        typeLabel = typeLabels[seg.bookingType] || 'Booking';
+        nameText  = seg.name;
+      }
+
+      // Spine labels: first free slot says "Now", booked slots show actual start
+      const spineStart    = (idx === 0 && isFree) ? 'Now' : mins2label(seg.startMins);
+      const spineEnd      = isFreeAll ? mins2label(closeMin) : mins2label(seg.endMins);
+      const durEnd        = isFreeAll ? closeMin : seg.endMins;
+      const timeRange     = `${mins2label(seg.startMins)}\u2013${spineEnd}`;
+      const nowPill       = idx === 0
+        ? `<div class="now-pill"><span class="now-dot"></span>Now</div>`
+        : '';
+
+      return `
+        <div class="usage-slot ${slotCls}">
+          <div class="slot-spine">
+            <div class="spine-time${idx === 0 ? ' is-now' : ''}">${spineStart}</div>
+            <div class="spine-connector"></div>
+            <div class="spine-end-time">${spineEnd}</div>
+          </div>
+          <div class="slot-content">
+            ${nowPill}
+            <div class="slot-type-label">${typeLabel}</div>
+            <div class="slot-name">${nameText}</div>
+            <div class="slot-duration">${timeRange} &middot; ${mins2duration(durEnd - seg.startMins)}</div>
+          </div>
+        </div>`;
+    }).join('');
+
+    const card = document.createElement('div');
+    card.className = `slot-court-card type-${court.type}`;
+    card.innerHTML = `
+      <div class="court-header">
+        <span class="court-num">Court ${court.id}</span>
+        <div class="court-divider"></div>
+        <span class="court-type-badge">${court.label}</span>
+        ${isFloodlit ? `<span class="floodlit-icon">${BOLT_SVG} Floodlit</span>` : ''}
+      </div>
+      <div class="slots-list">${slotsHTML}</div>`;
+
+    grid.appendChild(card);
+  }
 }
 
 // ════════════════════════════════════════════════════════════

@@ -3,11 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Court Bookings · Pirates TC</title>
+<title>Court Slots · Pirates TC</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/noticeboard.css">
 </head>
-<body>
+<body data-view="slots">
 
 <!-- LOADING -->
 <div class="loading-overlay" id="loadingOverlay">
@@ -22,8 +22,8 @@
     <div class="club-sub">Court Availability Board</div>
   </div>
   <div class="view-toggle">
-    <a href="/" class="view-btn view-btn-active">Timeline</a>
-    <a href="/slot-list.html" class="view-btn">Slot List</a>
+    <a href="/" class="view-btn">Timeline</a>
+    <a href="/slot-list.html" class="view-btn view-btn-active">Slot List</a>
   </div>
   <div class="header-right">
     <div class="live-badge"><span class="pulse-dot"></span>Live</div>
@@ -32,24 +32,15 @@
   </div>
 </header>
 
-<!-- WINDOW BAR -->
+<!-- SUB-BAR -->
 <div class="window-bar">
   <span class="window-label">Showing</span>
-  <span class="window-range" id="windowRange">—</span>
+  <span class="window-range">Next usage slots per court</span>
   <div class="fetch-status" id="fetchStatus">—</div>
 </div>
 
-<!-- TIME RULER (landscape only) -->
-<div class="ruler-row landscape-only">
-  <div class="ruler-slots" id="rulerSlots"></div>
-  <div class="ruler-summary-col">What's next</div>
-</div>
-
-<!-- COURTS: landscape rows -->
-<div class="courts-list landscape-only" id="courtsList"></div>
-
-<!-- COURTS: portrait grid -->
-<div class="courts-grid portrait-only" id="courtsGrid"></div>
+<!-- SLOT GRID — populated by renderSlotList() -->
+<div class="slot-courts-grid" id="slotGrid"></div>
 
 <!-- LEGEND -->
 <div class="legend">

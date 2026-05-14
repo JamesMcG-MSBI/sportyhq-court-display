@@ -1,0 +1,882 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Court Slots · Pirates TC — Mockup</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ════════════════════════════════════════════════════════════
+   Design tokens — identical to the main board
+   ════════════════════════════════════════════════════════════ */
+:root {
+  --bg:            #f0f2ee;
+  --surface:       #ffffff;
+  --surface2:      #f7f8f6;
+  --border:        #dde0da;
+  --border-strong: #c8ccc4;
+
+  --green:         #1a7a35;
+  --green-light:   #e8f5ec;
+  --green-mid:     #b2d9bc;
+  --green-vivid:   #22a447;
+  --green-dim:     #d1ecda;
+
+  --amber:         #b06a00;
+  --amber-light:   #fff4e0;
+  --amber-mid:     #f5c97a;
+
+  --blue:          #1a5fa8;
+  --blue-light:    #e8f1fb;
+  --blue-mid:      #9fc3ef;
+
+  --red:           #c0392b;
+  --red-light:     #fdecea;
+
+  --c-members:  #1a7a35;
+  --c-genflood: #1a5fa8;
+  --c-general:  #7a5a1a;
+
+  --text:          #1c2419;
+  --text-mid:      #4a5c46;
+  --muted:         #8a9e86;
+  --muted2:        #c4d0c0;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── HEADER ── */
+header {
+  background: var(--surface);
+  border-bottom: 1.5px solid var(--border);
+  padding: 16px 24px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.06);
+}
+
+.club-name {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.9rem;
+  letter-spacing: 0.12em;
+  color: var(--green);
+  line-height: 1;
+}
+
+.club-sub {
+  font-size: 0.62rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 3px;
+}
+
+.header-right { text-align: right; }
+
+.live-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--green-light);
+  border: 1px solid var(--green-mid);
+  border-radius: 20px;
+  padding: 4px 10px;
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--green);
+  margin-bottom: 4px;
+}
+
+.pulse-dot {
+  width: 6px; height: 6px;
+  background: var(--green-vivid);
+  border-radius: 50%;
+  animation: pulse 1.8s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:.4; transform:scale(.7); }
+}
+
+.current-time {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 2.3rem;
+  letter-spacing: 0.06em;
+  color: var(--text);
+  line-height: 1;
+}
+
+.current-date {
+  font-size: 0.62rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 2px;
+}
+
+/* ── SUB-BAR ── */
+.sub-bar {
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  padding: 7px 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.sub-bar-label {
+  font-size: 0.6rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.fetch-status {
+  margin-left: auto;
+  font-size: 0.58rem;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+}
+
+/* ── COURTS GRID ── */
+.courts-grid {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+  gap: 10px;
+  padding: 10px 24px;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* ── COURT CARD ── */
+.court-card {
+  display: flex;
+  flex-direction: column;
+  background: var(--surface);
+  border: 1.5px solid var(--border);
+  border-left-width: 4px;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+  animation: slideIn .35s ease both;
+}
+
+.court-card.type-members  { border-left-color: var(--c-members);  }
+.court-card.type-genflood { border-left-color: var(--c-genflood); }
+.court-card.type-general  { border-left-color: var(--c-general);  }
+
+.court-card:nth-child(1) { animation-delay: .04s; }
+.court-card:nth-child(2) { animation-delay: .08s; }
+.court-card:nth-child(3) { animation-delay: .12s; }
+.court-card:nth-child(4) { animation-delay: .16s; }
+.court-card:nth-child(5) { animation-delay: .20s; }
+.court-card:nth-child(6) { animation-delay: .24s; }
+
+@keyframes slideIn {
+  from { opacity:0; transform:translateY(6px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* ── CARD HEADER ── */
+.court-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.court-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 1.1rem;
+  letter-spacing: .06em;
+  line-height: 1;
+}
+
+.type-members  .court-num { color: var(--c-members);  }
+.type-genflood .court-num { color: var(--c-genflood); }
+.type-general  .court-num { color: var(--c-general);  }
+
+.court-divider { width:1px; height:14px; background:var(--border-strong); flex-shrink:0; }
+
+.court-type-badge {
+  font-size: 0.55rem;
+  font-weight: 600;
+  letter-spacing: 0.13em;
+  text-transform: uppercase;
+  padding: 2px 8px;
+  border-radius: 20px;
+}
+
+.type-members  .court-type-badge { background:var(--green-light); color:var(--c-members);  border:1px solid var(--green-mid); }
+.type-genflood .court-type-badge { background:var(--blue-light);  color:var(--c-genflood); border:1px solid var(--blue-mid);  }
+.type-general  .court-type-badge { background:var(--amber-light); color:var(--c-general);  border:1px solid var(--amber-mid); }
+
+.bolt-icon {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.52rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.bolt-icon svg { width:10px; height:10px; opacity:0.5; }
+
+/* ── SLOTS LIST ── */
+.slots-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* ── USAGE SLOT ── */
+/*
+  A "usage slot" is one of up to 3 rows.
+  It can be:
+    - a booking  (booked)
+    - a free gap (free)
+    - free-to-close  (free, spanning rest of day)
+*/
+.usage-slot {
+  flex: 1;
+  display: flex;
+  align-items: stretch;
+  min-height: 0;
+  border-top: 1px solid var(--border);
+  position: relative;
+  overflow: hidden;
+}
+
+.usage-slot:first-child { border-top: none; }
+
+/* Left time-spine */
+.slot-spine {
+  width: 44px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 0;
+  border-right: 1px solid var(--border);
+  background: var(--surface2);
+}
+
+.spine-time {
+  font-size: 0.6rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--text-mid);
+  line-height: 1;
+}
+
+.spine-time.is-now {
+  color: var(--green-vivid);
+}
+
+.spine-end-time {
+  font-size: 0.52rem;
+  letter-spacing: 0.04em;
+  color: var(--muted);
+  line-height: 1;
+}
+
+.spine-connector {
+  flex: 1;
+  width: 1px;
+  background: var(--border);
+  margin: 3px 0;
+}
+
+/* Right content area */
+.slot-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 8px 12px;
+  min-width: 0;
+  gap: 3px;
+}
+
+/* ── BOOKED slot ── */
+.usage-slot.slot-booked .slot-content {
+  background: var(--green-light);
+}
+
+.usage-slot.slot-booked-lesson .slot-content {
+  background: var(--amber-light);
+}
+
+.usage-slot.slot-booked-club .slot-content {
+  background: var(--blue-light);
+}
+
+.usage-slot.slot-booked-maint .slot-content {
+  background: var(--red-light);
+}
+
+.slot-type-label {
+  font-size: 0.5rem;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.slot-booked .slot-type-label        { color: var(--green); }
+.slot-booked-lesson .slot-type-label { color: var(--amber); }
+.slot-booked-club .slot-type-label   { color: var(--blue);  }
+.slot-booked-maint .slot-type-label  { color: var(--red);   }
+.slot-free  .slot-type-label         { color: var(--muted); }
+.slot-free-all .slot-type-label      { color: var(--muted); }
+
+.slot-name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.slot-free .slot-name,
+.slot-free-all .slot-name {
+  color: var(--text-mid);
+  font-weight: 400;
+}
+
+.slot-duration {
+  font-size: 0.55rem;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+}
+
+/* ── FREE slot ── */
+.usage-slot.slot-free .slot-content,
+.usage-slot.slot-free-all .slot-content {
+  background: transparent;
+}
+
+/* FREE-ALL spinner/pattern on the spine */
+.usage-slot.slot-free-all .slot-spine {
+  background: var(--green-light);
+  border-right-color: var(--green-mid);
+}
+
+.usage-slot.slot-free-all .slot-spine .spine-time,
+.usage-slot.slot-free-all .slot-spine .spine-end-time {
+  color: var(--green);
+}
+
+.usage-slot.slot-free-all .slot-spine .spine-connector {
+  background: var(--green-mid);
+}
+
+/* ── FREE gap — subtle dot pattern ── */
+.slot-free-dots {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: radial-gradient(circle, var(--muted2) 1px, transparent 1px);
+  background-size: 18px 18px;
+  opacity: 0.5;
+}
+
+/* ── NOW INDICATOR ── */
+.now-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--green-vivid);
+  color: #fff;
+  font-size: 0.48rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  padding: 2px 7px;
+  border-radius: 10px;
+  margin-bottom: 2px;
+  width: fit-content;
+}
+
+.now-dot {
+  width: 5px; height: 5px;
+  background: rgba(255,255,255,0.8);
+  border-radius: 50%;
+  animation: pulse 1.8s ease-in-out infinite;
+}
+
+/* ── LEGEND ── */
+.legend {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 8px 24px;
+  border-top: 1px solid var(--border);
+  background: var(--surface);
+  flex-shrink: 0;
+}
+
+.legend-label { font-size:0.57rem; letter-spacing:.2em; text-transform:uppercase; color:var(--muted); }
+.legend-item  { display:flex; align-items:center; gap:6px; font-size:0.6rem; color:var(--text-mid); }
+
+.l-pip      { width:22px; height:8px; border-radius:3px; }
+.l-avail    { background: var(--surface); border:1.5px solid var(--border-strong); }
+.l-member   { background:var(--green-light); border:1.5px solid var(--green-mid); }
+.l-lesson   { background:var(--amber-light); border:1.5px solid var(--amber-mid); }
+.l-club     { background:var(--blue-light);  border:1.5px solid var(--blue-mid);  }
+.l-maint    { background:var(--red-light);   border:1.5px solid #e8b4ae;          }
+
+.legend-spacer { flex:1; }
+.legend-tag    { font-size:0.58rem; color:var(--muted); letter-spacing:.06em; }
+
+/* ── TICKER ── */
+.ticker {
+  background: var(--green-light);
+  border-top: 1px solid var(--green-mid);
+  padding: 6px 0;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.ticker-track {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: scroll-ticker 35s linear infinite;
+}
+
+@keyframes scroll-ticker {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+.ticker-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 0 36px;
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: .06em;
+  color: var(--green);
+}
+
+.ticker-dim { color: var(--muted); }
+.ticker-sep { color: var(--green-mid); }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div>
+    <div class="club-name">Pirates Tennis Club</div>
+    <div class="club-sub">Court Availability Board</div>
+  </div>
+  <div class="header-right">
+    <div class="live-badge"><span class="pulse-dot"></span>Live</div>
+    <div class="current-time">09:42</div>
+    <div class="current-date">Thursday · 14 May 2026</div>
+  </div>
+</header>
+
+<!-- SUB-BAR -->
+<div class="sub-bar">
+  <span class="sub-bar-label">Next usage slots per court</span>
+  <div class="fetch-status">Updated 09:40</div>
+</div>
+
+<!-- COURTS GRID -->
+<div class="courts-grid">
+
+  <!-- ══ COURT 1 ══
+       Scenario: Currently in a block booking (coaching), gap, then member booking.
+       Shows: Booked (now) → Free gap → Booked
+  -->
+  <div class="court-card type-members">
+    <div class="court-header">
+      <span class="court-num">Court 1</span>
+      <div class="court-divider"></div>
+      <span class="court-type-badge">Members · Floodlit</span>
+      <span class="bolt-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        Floodlit
+      </span>
+    </div>
+    <div class="slots-list">
+
+      <!-- Slot 1: Booked NOW -->
+      <div class="usage-slot slot-booked">
+        <div class="slot-spine">
+          <div class="spine-time is-now">9:30</div>
+          <div class="spine-connector"></div>
+          <div class="spine-end-time">11:00</div>
+        </div>
+        <div class="slot-content">
+          <div class="now-pill"><span class="now-dot"></span>Now</div>
+          <div class="slot-type-label">Member Booking</div>
+          <div class="slot-name">Club Coaching Session</div>
+          <div class="slot-duration">9:30 – 11:00 · 90 min</div>
+        </div>
+      </div>
+
+      <!-- Slot 2: Free gap -->
+      <div class="usage-slot slot-free">
+        <div class="slot-dots" style="
+          position:absolute;inset:0;pointer-events:none;
+          background-image:radial-gradient(circle, var(--muted2) 1px, transparent 1px);
+          background-size:18px 18px;opacity:0.45;
+        "></div>
+        <div class="slot-spine">
+          <div class="spine-time">11:00</div>
+          <div class="spine-connector"></div>
+          <div class="spine-end-time">13:30</div>
+        </div>
+        <div class="slot-content">
+          <div class="slot-type-label">Available</div>
+          <div class="slot-name">Court free to book</div>
+          <div class="slot-duration">11:00 – 13:30 · 2 hr 30 min</div>
+        </div>
+      </div>
+
+      <!-- Slot 3: Booked later -->
+      <div class="usage-slot slot-booked">
+        <div class="slot-spine">
+          <div class="spine-time">13:30</div>
+          <div class="spine-connector"></div>
+          <div class="spine-end-time">15:30</div>
+        </div>
+        <div class="slot-content">
+          <div class="slot-type-label">Member Booking</div>
+          <div class="slot-name">Nicholas von Flemming</div>
+          <div class="slot-duration">13:30 – 15:30 · 2 hr</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ COURT 2 ══
+       Scenario: Court is free right now, then 3 bookings with no gaps.
+       Shows: Free (now) → Booked → Booked  (3 consecutive bookings = 2 slots since they merge)
+  -->
+  <div class="court-card type-members">
+    <div class="court-header">
+      <span class="court-num">Court 2</span>
+      <div class="court-divider"></div>
+      <span class="court-type-badge">Members · Floodlit</span>
+      <span class="bolt-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        Floodlit
+      </span>
+    </div>
+    <div class="slots-list">
+
+      <!-- Slot 1: Free now -->
+      <div class="usage-slot slot-free">
+        <div class="slot-dots" style="
+          position:absolute;inset:0;pointer-events:none;
+          background-image:radial-gradient(circle, var(--muted2) 1px, transparent 1px);
+          background-size:18px 18px;opacity:0.45;
+        "></div>
+        <div class="slot-spine">
+          <div class="spine-time is-now">Now</div>
+          <div class="spine-connector"></div>
+          <div class="spine-end-time">10:00</div>
+        </div>
+        <div class="slot-content">
+          <div class="now-pill"><span class="now-dot"></span>Now</div>
+          <div class="slot-type-label">Available</div>
+          <div class="slot-name">Court free to book</div>
+          <div class="slot-duration">Until 10:00 · 18 min</div>
+        </div>
+      </div>
+
+      <!-- Slot 2: Block booking (3 back-to-back, merged) -->
+      <div class="usage-slot slot-booked">
+        <div class="slot-spine">
+          <div class="spine-time">10:00</div>
+          <div class="spine-connector"></div>
+          <div class="spine-end-time">13:00</div>
+        </div>
+        <div class="slot-content">
+          <div class="slot-type-label">Member Booking</div>
+          <div class="slot-name">Block Booking</div>
+          <div class="slot-duration">10:00 – 13:00 · 3 hr</div>
+        </div>
+      </div>
+
+      <!-- Slot 3: Another booking straight after -->
+      <div class="usage-slot slot-booked">
+        <div class="slot-spine">
+          <div class="spine-time">13:00</div>
+          <div class="spine-connector"></div>
+          <div class="spine-end-time">15:00</div>
+        </div>
+        <div class="slot-content">
+          <div class="slot-type-label">Member Booking</div>
+          <div class="slot-name">Sarah Williamson</div>
+          <div class="slot-duration">13:00 – 15:00 · 2 hr</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ COURT 3 ══
+       Scenario: Three back-to-back bookings (no gaps between them).
+       Shows: Booked → Booked → Booked
+  -->
+  <div class="court-card type-genflood">
+    <div class="court-header">
+      <span class="court-num">Court 3</span>
+      <div class="court-divider"></div>
+      <span class="court-type-badge">General · Floodlit</span>
+      <span class="bolt-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        Floodlit
+      </span>
+    </div>
+    <div class="slots-list">
+
+      <!-- Slot 1: Booked now -->
+      <div class="usage-slot slot-booked-lesson">
+        <div class="slot-spine">
+          <div class="spine-time is-now">9:00</div>
+          <div class="spine-connector"></div>
+          <div class="spine-end-time">11:00</div>
+        </div>
+        <div class="slot-content">
+          <div class="now-pill"><span class="now-dot"></span>Now</div>
+          <div class="slot-type-label">Coaching</div>
+          <div class="slot-name">Junior Academy</div>
+          <div class="slot-duration">9:00 – 11:00 · 2 hr</div>
+        </div>
+      </div>
+
+      <!-- Slot 2: Straight after -->
+      <div class="usage-slot slot-booked-lesson">
+        <div class="slot-spine">
+          <div class="spine-time">11:00</div>
+          <div class="spine-connector"></div>
+          <div class="spine-end-time">13:00</div>
+        </div>
+        <div class="slot-content">
+          <div class="slot-type-label">Coaching</div>
+          <div class="slot-name">Adult Beginner Group</div>
+          <div class="slot-duration">11:00 – 13:00 · 2 hr</div>
+        </div>
+      </div>
+
+      <!-- Slot 3: Then another -->
+      <div class="usage-slot slot-booked">
+        <div class="slot-spine">
+          <div class="spine-time">13:00</div>
+          <div class="spine-connector"></div>
+          <div class="spine-end-time">14:30</div>
+        </div>
+        <div class="slot-content">
+          <div class="slot-type-label">Member Booking</div>
+          <div class="slot-name">Thomas &amp; James Archer</div>
+          <div class="slot-duration">13:00 – 14:30 · 90 min</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ COURT 4 ══
+       Scenario: One booking later on, then free for the rest of the day.
+       Shows: Booked (now) → Free for rest of day
+       (Only 2 slots shown because there's nothing after the free period)
+  -->
+  <div class="court-card type-genflood">
+    <div class="court-header">
+      <span class="court-num">Court 4</span>
+      <div class="court-divider"></div>
+      <span class="court-type-badge">General · Floodlit</span>
+      <span class="bolt-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        Floodlit
+      </span>
+    </div>
+    <div class="slots-list">
+
+      <!-- Slot 1: Booked now -->
+      <div class="usage-slot slot-booked">
+        <div class="slot-spine">
+          <div class="spine-time is-now">9:00</div>
+          <div class="spine-connector"></div>
+          <div class="spine-end-time">10:30</div>
+        </div>
+        <div class="slot-content">
+          <div class="now-pill"><span class="now-dot"></span>Now</div>
+          <div class="slot-type-label">Member Booking</div>
+          <div class="slot-name">Emma &amp; Rachel Porter</div>
+          <div class="slot-duration">9:00 – 10:30 · 90 min</div>
+        </div>
+      </div>
+
+      <!-- Slot 2: Free for rest of day (spans remaining 2 flex rows) -->
+      <div class="usage-slot slot-free-all" style="flex: 2;">
+        <div class="slot-spine">
+          <div class="spine-time" style="color: var(--green);">10:30</div>
+          <div class="spine-connector" style="background: var(--green-mid);"></div>
+          <div class="spine-end-time" style="color: var(--green);">9pm</div>
+        </div>
+        <div class="slot-content" style="background: var(--green-light);">
+          <div class="slot-type-label" style="color: var(--green);">Available</div>
+          <div class="slot-name" style="color: var(--green); font-weight: 600;">Free for the rest of the day</div>
+          <div class="slot-duration" style="color: var(--green-vivid);">10:30 – 9pm · Book on SportyHQ</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ COURT 5 ══
+       Scenario: Court completely free all day — no bookings at all.
+       Shows: Single "Free all day" slot
+  -->
+  <div class="court-card type-general">
+    <div class="court-header">
+      <span class="court-num">Court 5</span>
+      <div class="court-divider"></div>
+      <span class="court-type-badge">General</span>
+    </div>
+    <div class="slots-list">
+
+      <!-- Single slot: Free all day -->
+      <div class="usage-slot slot-free-all" style="flex: 3;">
+        <div class="slot-spine" style="background: var(--green-light); border-right-color: var(--green-mid);">
+          <div class="spine-time" style="color: var(--green);">8am</div>
+          <div class="spine-connector" style="background: var(--green-mid);"></div>
+          <div class="spine-end-time" style="color: var(--green);">9pm</div>
+        </div>
+        <div class="slot-content" style="background: var(--green-light); justify-content: center; gap: 6px;">
+          <div class="slot-type-label" style="color: var(--green);">Available all day</div>
+          <div class="slot-name" style="color: var(--green); font-weight: 600; font-size: 0.9rem;">Court is free</div>
+          <div class="slot-duration" style="color: var(--green-vivid);">No bookings today · Book on SportyHQ</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ══ COURT 6 ══
+       Scenario: Maintenance block now, then club event, then free.
+       Shows: Maint → Club → Free to close
+  -->
+  <div class="court-card type-general">
+    <div class="court-header">
+      <span class="court-num">Court 6</span>
+      <div class="court-divider"></div>
+      <span class="court-type-badge">General</span>
+    </div>
+    <div class="slots-list">
+
+      <!-- Slot 1: Maintenance -->
+      <div class="usage-slot slot-booked-maint">
+        <div class="slot-spine">
+          <div class="spine-time is-now">8:00</div>
+          <div class="spine-connector"></div>
+          <div class="spine-end-time">10:00</div>
+        </div>
+        <div class="slot-content">
+          <div class="now-pill"><span class="now-dot"></span>Now</div>
+          <div class="slot-type-label">Maintenance</div>
+          <div class="slot-name">Court resurfacing</div>
+          <div class="slot-duration">8:00 – 10:00 · 2 hr</div>
+        </div>
+      </div>
+
+      <!-- Slot 2: Club event -->
+      <div class="usage-slot slot-booked-club">
+        <div class="slot-spine">
+          <div class="spine-time">10:00</div>
+          <div class="spine-connector"></div>
+          <div class="spine-end-time">13:00</div>
+        </div>
+        <div class="slot-content">
+          <div class="slot-type-label">Club Activity</div>
+          <div class="slot-name">Club Championships</div>
+          <div class="slot-duration">10:00 – 13:00 · 3 hr</div>
+        </div>
+      </div>
+
+      <!-- Slot 3: Free to close -->
+      <div class="usage-slot slot-free-all">
+        <div class="slot-spine" style="background: var(--green-light); border-right-color: var(--green-mid);">
+          <div class="spine-time" style="color: var(--green);">13:00</div>
+          <div class="spine-connector" style="background: var(--green-mid);"></div>
+          <div class="spine-end-time" style="color: var(--green);">9pm</div>
+        </div>
+        <div class="slot-content" style="background: var(--green-light);">
+          <div class="slot-type-label" style="color: var(--green);">Available</div>
+          <div class="slot-name" style="color: var(--green); font-weight: 600;">Free for the rest of the day</div>
+          <div class="slot-duration" style="color: var(--green-vivid);">13:00 – 9pm · Book on SportyHQ</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div><!-- /courts-grid -->
+
+<!-- LEGEND -->
+<div class="legend">
+  <span class="legend-label">Key</span>
+  <div class="legend-item"><div class="l-pip l-avail"></div>Available to book</div>
+  <div class="legend-item"><div class="l-pip l-member"></div>Member booking</div>
+  <div class="legend-item"><div class="l-pip l-lesson"></div>Coaching</div>
+  <div class="legend-item"><div class="l-pip l-club"></div>Club activity</div>
+  <div class="legend-item"><div class="l-pip l-maint"></div>Maintenance</div>
+  <div class="legend-spacer"></div>
+  <div class="legend-tag">Pirates Tennis Club · Court Display — Slot List Mockup</div>
+</div>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-track">
+    <span class="ticker-item">Court 1 <span class="ticker-dim">·</span> Club Coaching Session <span class="ticker-dim">·</span> 9:30–11:00 <span class="ticker-sep"> ◆ </span></span>
+    <span class="ticker-item">Court 2 <span class="ticker-dim">·</span> Block Booking <span class="ticker-dim">·</span> 10:00–13:00 <span class="ticker-sep"> ◆ </span></span>
+    <span class="ticker-item">Court 3 <span class="ticker-dim">·</span> Junior Academy <span class="ticker-dim">·</span> 9:00–11:00 <span class="ticker-sep"> ◆ </span></span>
+    <span class="ticker-item">Court 4 <span class="ticker-dim">·</span> Emma &amp; Rachel Porter <span class="ticker-dim">·</span> 9:00–10:30 <span class="ticker-sep"> ◆ </span></span>
+    <span class="ticker-item">Court 6 <span class="ticker-dim">·</span> Court resurfacing <span class="ticker-dim">·</span> 8:00–10:00 <span class="ticker-sep"> ◆ </span></span>
+    <span class="ticker-item">Court 6 <span class="ticker-dim">·</span> Club Championships <span class="ticker-dim">·</span> 10:00–13:00 <span class="ticker-sep"> ◆ </span></span>
+    <span class="ticker-item">Court 1 <span class="ticker-dim">·</span> Club Coaching Session <span class="ticker-dim">·</span> 9:30–11:00 <span class="ticker-sep"> ◆ </span></span>
+    <span class="ticker-item">Court 2 <span class="ticker-dim">·</span> Block Booking <span class="ticker-dim">·</span> 10:00–13:00 <span class="ticker-sep"> ◆ </span></span>
+    <span class="ticker-item">Court 3 <span class="ticker-dim">·</span> Junior Academy <span class="ticker-dim">·</span> 9:00–11:00 <span class="ticker-sep"> ◆ </span></span>
+    <span class="ticker-item">Court 4 <span class="ticker-dim">·</span> Emma &amp; Rachel Porter <span class="ticker-dim">·</span> 9:00–10:30 <span class="ticker-sep"> ◆ </span></span>
+    <span class="ticker-item">Court 6 <span class="ticker-dim">·</span> Court resurfacing <span class="ticker-dim">·</span> 8:00–10:00 <span class="ticker-sep"> ◆ </span></span>
+    <span class="ticker-item">Court 6 <span class="ticker-dim">·</span> Club Championships <span class="ticker-dim">·</span> 10:00–13:00 <span class="ticker-sep"> ◆ </span></span>
+  </div>
+</div>
+
+</body>
+</html>
