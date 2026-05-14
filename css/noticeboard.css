@@ -857,18 +857,6 @@ body.is-landscape .portrait-only  { display: none !important; }
   animation: pulse 1.8s ease-in-out infinite;
 }
 
-/* ── FREE gap — dot-pattern background ── */
-.usage-slot.slot-free::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-  background-image: radial-gradient(circle, var(--muted2) 1px, transparent 1px);
-  background-size: 18px 18px;
-  opacity: 0.45;
-  z-index: 0;
-}
-
 .usage-slot.slot-free  .slot-type-label { color: var(--muted); }
 .usage-slot.slot-free  .slot-name       { color: var(--text-mid); font-weight: 400; }
 
