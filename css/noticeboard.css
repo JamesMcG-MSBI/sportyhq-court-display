@@ -889,6 +889,19 @@ body.is-landscape .portrait-only  { display: none !important; }
 .usage-slot.slot-booked-maint  .slot-type-label { color: var(--red);   }
 
 /* ════════════════════════════════════════════════════════════
+   PORTRAIT NON-MOBILE — TV noticeboard in portrait orientation
+   Targets portrait screens wider than 600 px (e.g. a rotated
+   1080×1920 display) and shows all courts on one screen as a
+   2-column × 3-row grid instead of the landscape 3×2 layout.
+   ════════════════════════════════════════════════════════════ */
+@media (orientation: portrait) and (min-width: 601px) {
+  .slot-courts-grid {
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: repeat(3, 1fr);
+  }
+}
+
+/* ════════════════════════════════════════════════════════════
    MOBILE — single-column scrollable layout (≤ 600px)
    The kiosk (1920×1280) is unaffected; this only fires on
    narrow phone-sized viewports.
